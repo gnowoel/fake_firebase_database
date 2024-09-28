@@ -1,7 +1,3 @@
 library fake_firebase_database;
 
-/// A Calculator.
-class Calculator {
-  /// Returns [value] plus 1.
-  int addOne(int value) => value + 1;
-}
+part 'src/fake_firebase_database.dart';
