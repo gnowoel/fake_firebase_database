@@ -1,11 +1,17 @@
 part of '../fake_firebase_database.dart';
 
 class FakeFirebaseDatabase implements FirebaseDatabase {
-  @override
-  FirebaseApp app;
 
   @override
   String? databaseURL;
+
+  @override
+  FirebaseApp get app => throw UnimplementedError();
+
+  @override
+  set app(FirebaseApp value) {
+    // No-op for fake implementation
+  }
 
   @override
   Future<void> goOffline() {
