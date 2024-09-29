@@ -6,6 +6,10 @@ class FakeFirebaseDatabase implements FirebaseDatabase {
   @override
   String? databaseURL;
 
+  FakeFirebaseDatabase._();
+
+  static final FakeFirebaseDatabase instance = FakeFirebaseDatabase._();
+
   @override
   FirebaseApp get app => throw UnimplementedError();
 

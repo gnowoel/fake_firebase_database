@@ -4,10 +4,12 @@ import 'package:fake_firebase_database/fake_firebase_database.dart';
 
 void main() {
   group('FakeFirebaseDatabase', () {
-    test('can be instantiated', () {
-      final fakeFirebaseDatabase = FakeFirebaseDatabase();
+    test('instance is a singleton', () {
+      final instance1 = FakeFirebaseDatabase.instance;
+      final instance2 = FakeFirebaseDatabase.instance;
 
-      expect(fakeFirebaseDatabase, isA<FakeFirebaseDatabase>());
+      expect(instance1, isA<FakeFirebaseDatabase>());
+      expect(instance1, same(instance2));
     });
   });
 }
