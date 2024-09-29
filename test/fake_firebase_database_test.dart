@@ -21,5 +21,19 @@ void main() {
 
       expect(instance1, same(instance2));
     });
+
+    test('ref() returns a DatabaseReference', () {
+      final ref = database.ref();
+
+      expect(ref, isA<DatabaseReference>());
+      expect(ref.path, '/');
+    });
+
+    test('ref() with path returns correct DatabaseReference', () {
+      final ref = database.ref('users/123');
+
+      expect(ref, isA<DatabaseReference>());
+      expect(ref.path, 'users/123');
+    });
   });
 }

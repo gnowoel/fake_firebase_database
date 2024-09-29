@@ -1,6 +1,8 @@
 part of '../fake_firebase_database.dart';
 
 class FakeDatabaseReference extends FakeQuery implements DatabaseReference {
+  FakeDatabaseReference(super._database, super._path);
+
   @override
   DatabaseReference child(String path) {
     // TODO: implement child

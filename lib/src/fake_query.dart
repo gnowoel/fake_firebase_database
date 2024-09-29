@@ -1,6 +1,11 @@
 part of '../fake_firebase_database.dart';
 
 class FakeQuery implements Query {
+  final FakeFirebaseDatabase _database;
+  final String _path;
+
+  FakeQuery(this._database, this._path);
+
   @override
   Query endAt(Object? value, {String? key}) {
     // TODO: implement endAt
@@ -95,12 +100,10 @@ class FakeQuery implements Query {
   }
 
   @override
-  // TODO: implement path
-  String get path => throw UnimplementedError();
+  String get path => _path;
 
   @override
-  // TODO: implement ref
-  DatabaseReference get ref => throw UnimplementedError();
+  DatabaseReference get ref => FakeDatabaseReference(_database, _path);
 
   @override
   Query startAfter(Object? value, {String? key}) {

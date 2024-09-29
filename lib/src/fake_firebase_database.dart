@@ -42,8 +42,7 @@ class FakeFirebaseDatabase implements FirebaseDatabase {
 
   @override
   DatabaseReference ref([String? path]) {
-    // TODO: implement ref
-    throw UnimplementedError();
+    return FakeDatabaseReference(this, path ?? '/');
   }
 
   @override
