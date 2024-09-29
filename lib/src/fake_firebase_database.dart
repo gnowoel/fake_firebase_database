@@ -1,6 +1,7 @@
 part of '../fake_firebase_database.dart';
 
 class FakeFirebaseDatabase implements FirebaseDatabase {
+  final Map<String, dynamic> _store = {};
 
   @override
   String? databaseURL;
