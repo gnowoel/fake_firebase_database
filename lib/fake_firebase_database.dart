@@ -1,5 +1,6 @@
 library fake_firebase_database;
 
+import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
 
 part 'src/fake_data_snapshot.dart';
