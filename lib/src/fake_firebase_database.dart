@@ -1,3 +1,3 @@
 part of '../fake_firebase_database.dart';
 
-class FakeFirebaseDatabase {}
+class FakeFirebaseDatabase implements FirebaseDatabase {}

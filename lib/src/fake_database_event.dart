@@ -1,3 +1,3 @@
 part of '../fake_firebase_database.dart';
 
-class FakeDatabaseEvent {}
+class FakeDatabaseEvent implements DatabaseEvent {}
