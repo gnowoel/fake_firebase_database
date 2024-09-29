@@ -1,14 +1,24 @@
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:fake_firebase_database/fake_firebase_database.dart';
 
 void main() {
   group('FakeFirebaseDatabase', () {
+    late FakeFirebaseDatabase database;
+
+    setUp(() {
+      database = FakeFirebaseDatabase.instance;
+    });
+
+    test('can create a FirebaseDatabase instance', () {
+      expect(database, isA<FirebaseDatabase>());
+    });
+
     test('instance is a singleton', () {
       final instance1 = FakeFirebaseDatabase.instance;
       final instance2 = FakeFirebaseDatabase.instance;
 
-      expect(instance1, isA<FakeFirebaseDatabase>());
       expect(instance1, same(instance2));
     });
   });
