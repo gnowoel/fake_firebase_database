@@ -4,36 +4,48 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:fake_firebase_database/fake_firebase_database.dart';
 
 void main() {
+  late FakeFirebaseDatabase database;
+
+  setUp(() {
+    database = FakeFirebaseDatabase.instance;
+  });
+
   group('FakeFirebaseDatabase', () {
-    late FakeFirebaseDatabase database;
-
-    setUp(() {
-      database = FakeFirebaseDatabase.instance;
-    });
-
     test('can create a FirebaseDatabase instance', () {
-      expect(database, isA<FirebaseDatabase>());
+      final instance = FakeFirebaseDatabase.instance;
+
+      expect(instance, isA<FirebaseDatabase>());
     });
 
-    test('instance is a singleton', () {
+    test('should return a singleton instance', () {
       final instance1 = FakeFirebaseDatabase.instance;
       final instance2 = FakeFirebaseDatabase.instance;
 
       expect(instance1, same(instance2));
     });
 
-    test('ref() returns a DatabaseReference', () {
+    test('ref() returns a DatabaseReference with root path', () {
       final ref = database.ref();
 
       expect(ref, isA<DatabaseReference>());
       expect(ref.path, '/');
     });
 
-    test('ref() with path returns correct DatabaseReference', () {
+    test('ref(path) returns a DatabaseReference with specified path', () {
       final ref = database.ref('users/123');
 
       expect(ref, isA<DatabaseReference>());
       expect(ref.path, 'users/123');
+    });
+  });
+
+  group('FakeDatabaseReference', () {
+    test('can set() and get() from root path', () async {
+      final ref = database.ref();
+      await ref.set({'name': 'John', 'age': 18});
+
+      final snapshot = await ref.get();
+      expect(snapshot.value, {'name': 'John', 'age': 18});
     });
   });
 }

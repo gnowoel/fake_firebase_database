@@ -25,9 +25,10 @@ class FakeQuery implements Query {
   }
 
   @override
-  Future<DataSnapshot> get() {
-    // TODO: implement get
-    throw UnimplementedError();
+  Future<DataSnapshot> get() async {
+    Object? data = _database._store[_path];
+
+    return FakeDataSnapshot(ref, data);
   }
 
   @override

@@ -1,6 +1,11 @@
 part of '../fake_firebase_database.dart';
 
 class FakeDataSnapshot implements DataSnapshot {
+  final DatabaseReference _ref;
+  final Object? _value;
+
+  FakeDataSnapshot(this._ref, this._value);
+
   @override
   DataSnapshot child(String path) {
     // TODO: implement child
@@ -34,6 +39,5 @@ class FakeDataSnapshot implements DataSnapshot {
   DatabaseReference get ref => throw UnimplementedError();
 
   @override
-  // TODO: implement value
-  Object? get value => throw UnimplementedError();
+  Object? get value => _value;
 }

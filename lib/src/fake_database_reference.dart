@@ -48,9 +48,8 @@ class FakeDatabaseReference extends FakeQuery implements DatabaseReference {
   }
 
   @override
-  Future<void> set(Object? value) {
-    // TODO: implement set
-    throw UnimplementedError();
+  Future<void> set(Object? value) async {
+    _database._store[_path] = value;
   }
 
   @override
