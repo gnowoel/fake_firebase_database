@@ -40,12 +40,30 @@ void main() {
   });
 
   group('FakeDatabaseReference', () {
-    test('can set() and get() from root path', () async {
+    test('can set() and get() at root path', () async {
       final ref = database.ref();
-      await ref.set({'name': 'John', 'age': 18});
+      final value = {'name': 'John', 'age': 18};
+
+      await ref.set(value);
 
       final snapshot = await ref.get();
-      expect(snapshot.value, {'name': 'John', 'age': 18});
+      expect(snapshot.value, value);
+    });
+
+    test('can set() and get() a complex object at root path', () async {
+      final ref = database.ref();
+      final value = {
+        'name': 'John',
+        'age': 18,
+        'addresses': {
+          'line1': '100 Mountain View',
+        },
+      };
+
+      await ref.set(value);
+
+      final snapshot = await ref.get();
+      expect(snapshot.value, value);
     });
   });
 }
