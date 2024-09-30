@@ -40,7 +40,7 @@ void main() {
   });
 
   group('FakeDatabaseReference', () {
-    test('can set() and get() at root path', () async {
+    test('can set() and get() a simple map at root path', () async {
       final ref = database.ref();
       final value = {'name': 'John', 'age': 18};
 
@@ -50,7 +50,7 @@ void main() {
       expect(snapshot.value, value);
     });
 
-    test('can set() and get() a complex object at root path', () async {
+    test('can set() and get() a complex map at root path', () async {
       final ref = database.ref();
       final value = {
         'name': 'John',
@@ -66,7 +66,7 @@ void main() {
       expect(snapshot.value, value);
     });
 
-    test('can get() a nested object from specified path', () async {
+    test('can get() the value from a nested path', () async {
       final ref1 = database.ref();
       final value = {
         'addresses': {
