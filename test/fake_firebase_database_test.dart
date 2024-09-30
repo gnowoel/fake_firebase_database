@@ -65,5 +65,20 @@ void main() {
       final snapshot = await ref.get();
       expect(snapshot.value, value);
     });
+
+    test('can get() a nested object from specified path', () async {
+      final ref1 = database.ref();
+      final value = {
+        'addresses': {
+          'line1': '100 Mountain View',
+        },
+      };
+
+      await ref1.set(value);
+
+      final ref2 = database.ref('/addresses');
+      final snapshot = await ref2.get();
+      expect(snapshot.value, value['addresses']);
+    });
   });
 }
