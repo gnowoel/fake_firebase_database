@@ -4,10 +4,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:fake_firebase_database/fake_firebase_database.dart';
 
 void main() {
-  late FakeFirebaseDatabase database;
+  final database = FakeFirebaseDatabase.instance;
 
-  setUp(() {
-    database = FakeFirebaseDatabase.instance;
+  setUp(() async {
+    final ref = database.ref();
+    await ref.set(null);
   });
 
   group('FakeFirebaseDatabase', () {
