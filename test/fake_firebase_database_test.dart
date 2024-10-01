@@ -92,5 +92,21 @@ void main() {
       final snapshot = await ref2.get();
       expect(snapshot.value, addresses);
     });
+
+    test('can set() a map at a non-root path', () async {
+      final ref = database.ref('users/123');
+      final value = {
+        'name': 'John',
+        'age': 18,
+        'addresses': {
+          'line1': '100 Mountain View',
+        },
+      };
+
+      await ref.set(value);
+
+      final snapshot = await ref.get();
+      expect(snapshot.value, value);
+    });
   });
 }
