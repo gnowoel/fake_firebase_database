@@ -60,16 +60,14 @@ class FakeDatabaseReference extends FakeQuery implements DatabaseReference {
     List<String> pathParts,
     Object? value,
   ) {
-    for (int i = 0; i < pathParts.length; i++) {
-      final part = pathParts[i];
-
-      if (i == pathParts.length - 1) {
-        data[part] = value;
-      } else {
-        data[part] ??= <String, dynamic>{};
-        data = data[part] as Map<String, dynamic>;
+    final lastPart = pathParts.removeLast();
+    for (final part in pathParts) {
+      if (!data.containsKey(part) || data[part] is! Map<String, dynamic>) {
+        data[part] = <String, dynamic>{};
       }
+      data = data[part] as Map<String, dynamic>;
     }
+    data[lastPart] = value;
   }
 
   @override
