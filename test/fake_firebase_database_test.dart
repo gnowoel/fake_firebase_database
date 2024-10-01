@@ -66,19 +66,30 @@ void main() {
       expect(snapshot.value, value);
     });
 
-    test('can get() the value from a nested path', () async {
+    test('can get() the value from a shallow path', () async {
       final ref1 = database.ref();
-      final value = {
-        'addresses': {
-          'line1': '100 Mountain View',
-        },
-      };
+      final addresses = {'line1': '100 Mountain View'};
+      final john = {'addresses': addresses};
+      final value = {'John': john};
 
       await ref1.set(value);
 
-      final ref2 = database.ref('/addresses');
+      final ref2 = database.ref('/John');
       final snapshot = await ref2.get();
-      expect(snapshot.value, value['addresses']);
+      expect(snapshot.value, john);
+    });
+
+    test('can get() the value from a deep path', () async {
+      final ref1 = database.ref();
+      final addresses = {'line1': '100 Mountain View'};
+      final john = {'addresses': addresses};
+      final value = {'John': john};
+
+      await ref1.set(value);
+
+      final ref2 = database.ref('/John/addresses');
+      final snapshot = await ref2.get();
+      expect(snapshot.value, addresses);
     });
   });
 }
