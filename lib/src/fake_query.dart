@@ -35,6 +35,7 @@ class FakeQuery implements Query {
   }
 
   Object? _getDataAtPath(Map<String, dynamic> data, List<String> pathParts) {
+    final lastPart = pathParts.removeLast();
     for (final part in pathParts) {
       if (data.containsKey(part)) {
         data = data[part];
@@ -42,7 +43,7 @@ class FakeQuery implements Query {
         return null;
       }
     }
-    return data;
+    return data[lastPart];
   }
 
   @override

@@ -108,5 +108,15 @@ void main() {
       final snapshot = await ref.get();
       expect(snapshot.value, value);
     });
+
+    test('can set() a non-map at a non-root path', () async {
+      final ref = database.ref('users/123');
+      const value = 'John';
+
+      await ref.set(value);
+
+      final snapshot = await ref.get();
+      expect(snapshot.value, value);
+    });
   });
 }
