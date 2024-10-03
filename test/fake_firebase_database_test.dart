@@ -146,5 +146,25 @@ void main() {
         'city': 'Mountain View',
       });
     });
+
+    test('can remove() data at the room path', () async {
+      final ref = database.ref();
+
+      await ref.set({'name': 'John', 'age': 18});
+      await ref.remove();
+
+      final snapshot = await ref.get();
+      expect(snapshot.value, null);
+    });
+
+    test('can remove() data at the room path', () async {
+      final ref = database.ref('users/123');
+
+      await ref.set({'name': 'John', 'age': 18});
+      await ref.remove();
+
+      final snapshot = await ref.get();
+      expect(snapshot.value, null);
+    });
   });
 }

@@ -30,9 +30,8 @@ class FakeDatabaseReference extends FakeQuery implements DatabaseReference {
   }
 
   @override
-  Future<void> remove() {
-    // TODO: implement remove
-    throw UnimplementedError();
+  Future<void> remove() async {
+    set(null);
   }
 
   @override
