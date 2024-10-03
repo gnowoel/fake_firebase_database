@@ -166,5 +166,39 @@ void main() {
       final snapshot = await ref.get();
       expect(snapshot.value, null);
     });
+
+    test('can save a path with extra slashes', () async {
+      final ref1 = database.ref('//');
+      final ref2 = database.ref('//users//');
+      final ref3 = database.ref('//users//123//');
+
+      expect(ref1.path, '//');
+      expect(ref2.path, '//users//');
+      expect(ref3.path, '//users//123//');
+    });
+
+    test('can use a path with extra slashes', () async {
+      final value = {'name': 'John', 'age': 18};
+
+      final ref11 = database.ref('//');
+      final ref21 = database.ref('//users//');
+      final ref31 = database.ref('//users//123//');
+
+      await ref11.set(value);
+      await ref21.set(value);
+      await ref31.set(value);
+
+      final ref12 = database.ref('');
+      final ref22 = database.ref('users');
+      final ref32 = database.ref('users/123');
+
+      final snapshot12 = await ref12.get();
+      final snapshot22 = await ref22.get();
+      final snapshot32 = await ref32.get();
+
+      expect(snapshot12.value, value);
+      expect(snapshot22.value, value);
+      expect(snapshot32.value, value);
+    });
   });
 }
