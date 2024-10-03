@@ -49,19 +49,11 @@ class FakeDatabaseReference extends FakeQuery implements DatabaseReference {
 
   @override
   Future<void> set(Object? value) async {
-    final pathParts = _path.split('/').where((part) => part.isNotEmpty).toList()
-      ..insert(0, '/');
+    final parts = _pathParts;
+    Map<String, dynamic> data = _database._store;
+    final lastPart = parts.removeLast();
 
-    _setDataAtPath(_database._store, pathParts, value);
-  }
-
-  void _setDataAtPath(
-    Map<String, dynamic> data,
-    List<String> pathParts,
-    Object? value,
-  ) {
-    final lastPart = pathParts.removeLast();
-    for (final part in pathParts) {
+    for (final part in parts) {
       if (!data.containsKey(part) || data[part] is! Map<String, dynamic>) {
         data[part] = <String, dynamic>{};
       }

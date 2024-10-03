@@ -26,24 +26,25 @@ class FakeQuery implements Query {
 
   @override
   Future<DataSnapshot> get() async {
-    final pathParts = _path.split('/').where((part) => part.isNotEmpty).toList()
-      ..insert(0, '/');
+    final parts = _pathParts;
+    Object? data = _database._store;
 
-    Object? data = _getDataAtPath(_database._store, pathParts);
+    for (final part in parts) {
+      if (data is Map && data.containsKey(part)) {
+        data = data[part];
+      } else {
+        data = null;
+        break;
+      }
+    }
 
     return FakeDataSnapshot(ref, data);
   }
 
-  Object? _getDataAtPath(Map<String, dynamic> data, List<String> pathParts) {
-    final lastPart = pathParts.removeLast();
-    for (final part in pathParts) {
-      if (data.containsKey(part)) {
-        data = data[part];
-      } else {
-        return null;
-      }
-    }
-    return data[lastPart];
+  List<String> get _pathParts {
+    final parts = _path.split('/').where((part) => part.isNotEmpty).toList();
+    parts.insert(0, '/');
+    return parts;
   }
 
   @override
