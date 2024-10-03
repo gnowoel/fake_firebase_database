@@ -118,5 +118,33 @@ void main() {
       final snapshot = await ref.get();
       expect(snapshot.value, value);
     });
+
+    test('can update() data at the root path', () async {
+      final ref = database.ref();
+
+      await ref.set({'name': 'John', 'age': 18});
+      await ref.update({'age': 19, 'city': 'Mountain View'});
+
+      final snapshot = await ref.get();
+      expect(snapshot.value, {
+        'name': 'John',
+        'age': 19,
+        'city': 'Mountain View',
+      });
+    });
+
+    test('can update() data at a non-room path', () async {
+      final ref = database.ref('users/123');
+
+      await ref.set({'name': 'John', 'age': 18});
+      await ref.update({'age': 19, 'city': 'Mountain View'});
+
+      final snapshot = await ref.get();
+      expect(snapshot.value, {
+        'name': 'John',
+        'age': 19,
+        'city': 'Mountain View',
+      });
+    });
   });
 }

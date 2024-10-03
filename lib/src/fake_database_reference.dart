@@ -75,8 +75,19 @@ class FakeDatabaseReference extends FakeQuery implements DatabaseReference {
   }
 
   @override
-  Future<void> update(Map<String, Object?> value) {
-    // TODO: implement update
-    throw UnimplementedError();
+  Future<void> update(Map<String, Object?> value) async {
+    final parts = _pathParts;
+    Map<String, dynamic> data = _database._store;
+
+    for (final part in parts) {
+      if (!data.containsKey(part) || data[part] is! Map<String, dynamic>) {
+        data[part] = <String, dynamic>{};
+      }
+      data = data[part] as Map<String, dynamic>;
+    }
+
+    value.forEach((key, val) {
+      data[key] = val;
+    });
   }
 }
