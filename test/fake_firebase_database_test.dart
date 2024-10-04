@@ -133,7 +133,7 @@ void main() {
       });
     });
 
-    test('can update() data at a non-room path', () async {
+    test('can update() data at a non-root path', () async {
       final ref = database.ref('users/123');
 
       await ref.set({'name': 'John', 'age': 18});
@@ -147,7 +147,7 @@ void main() {
       });
     });
 
-    test('can remove() data at the room path', () async {
+    test('can remove() data at the root path', () async {
       final ref = database.ref();
 
       await ref.set({'name': 'John', 'age': 18});
@@ -157,7 +157,7 @@ void main() {
       expect(snapshot.value, null);
     });
 
-    test('can remove() data at the room path', () async {
+    test('can remove() data at a non-root path', () async {
       final ref = database.ref('users/123');
 
       await ref.set({'name': 'John', 'age': 18});
@@ -165,6 +165,26 @@ void main() {
 
       final snapshot = await ref.get();
       expect(snapshot.value, null);
+    });
+
+    test('clean up entries starting from the current path', () async {
+      final ref1 = database.ref('users/123');
+
+      await ref1.set(null);
+
+      final ref2 = database.ref();
+      final snapshot2 = await ref2.get();
+      expect(snapshot2.value, null);
+    });
+
+    test('remove empty entries all the way up', () async {
+      final ref1 = database.ref('users/123');
+
+      await ref1.set({});
+
+      final ref2 = database.ref();
+      final snapshot2 = await ref2.get();
+      expect(snapshot2.value, null);
     });
 
     test('can save a path with extra slashes', () async {

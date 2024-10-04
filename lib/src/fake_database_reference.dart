@@ -58,7 +58,14 @@ class FakeDatabaseReference extends FakeQuery implements DatabaseReference {
       }
       data = data[part] as Map<String, dynamic>;
     }
-    data[lastPart] = value;
+
+    if (value == null || (value is Map && value.isEmpty)) {
+      data.remove(lastPart);
+    } else {
+      data[lastPart] = value;
+    }
+
+    _cleanupEmptyEntries();
   }
 
   @override
@@ -88,5 +95,38 @@ class FakeDatabaseReference extends FakeQuery implements DatabaseReference {
     value.forEach((key, val) {
       data[key] = val;
     });
+  }
+
+  void _cleanupEmptyEntries() {
+    final parts = _pathParts;
+    Map<String, dynamic> data = _database._store;
+    List<Map<String, dynamic>> parentMaps = [data];
+
+    for (final part in parts) {
+      if (data.containsKey(part) && data[part] is Map<String, dynamic>) {
+        data = data[part] as Map<String, dynamic>;
+        parentMaps.add(data);
+      } else {
+        break;
+      }
+    }
+
+    for (int i = parentMaps.length - 1; i > 0; i--) {
+      final currentMap = parentMaps[i];
+      final parentMap = parentMaps[i - 1];
+      final key = parts[i - 1];
+
+      if (currentMap.isEmpty) {
+        parentMap.remove(key);
+      } else {
+        break;
+      }
+    }
+
+    final root = _database._store['/'];
+
+    if (root == null || (root is Map && root.isEmpty)) {
+      _database._store.remove('/');
+    }
   }
 }
