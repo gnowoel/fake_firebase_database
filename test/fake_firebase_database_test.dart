@@ -167,7 +167,7 @@ void main() {
       expect(snapshot.value, null);
     });
 
-    test('clean up entries starting from the current path', () async {
+    test('remove `null` entries upward', () async {
       final ref1 = database.ref('users/123');
 
       await ref1.set(null);
@@ -177,10 +177,20 @@ void main() {
       expect(snapshot2.value, null);
     });
 
-    test('remove empty entries all the way up', () async {
+    test('remove empty map entries upward', () async {
       final ref1 = database.ref('users/123');
 
       await ref1.set({});
+
+      final ref2 = database.ref();
+      final snapshot2 = await ref2.get();
+      expect(snapshot2.value, null);
+    });
+
+    test('remove empty list entries upward', () async {
+      final ref1 = database.ref('users/123');
+
+      await ref1.set([]);
 
       final ref2 = database.ref();
       final snapshot2 = await ref2.get();

@@ -59,7 +59,7 @@ class FakeDatabaseReference extends FakeQuery implements DatabaseReference {
       data = data[part] as Map<String, dynamic>;
     }
 
-    if (value == null || (value is Map && value.isEmpty)) {
+    if (_isEmptyOrNull(value)) {
       data.remove(lastPart);
     } else {
       data[lastPart] = value;
@@ -116,7 +116,7 @@ class FakeDatabaseReference extends FakeQuery implements DatabaseReference {
       final parentMap = parentMaps[i - 1];
       final key = parts[i - 1];
 
-      if (currentMap.isEmpty) {
+      if (_isEmptyOrNull(currentMap)) {
         parentMap.remove(key);
       } else {
         break;
@@ -128,5 +128,12 @@ class FakeDatabaseReference extends FakeQuery implements DatabaseReference {
     if (root == null || (root is Map && root.isEmpty)) {
       _database._store.remove('/');
     }
+  }
+
+  bool _isEmptyOrNull(Object? value) {
+    if (value == null) return true;
+    if (value is Map) return value.isEmpty;
+    if (value is List) return value.isEmpty;
+    return false;
   }
 }
