@@ -49,8 +49,8 @@ class FakeDatabaseReference extends FakeQuery implements DatabaseReference {
   @override
   Future<void> set(Object? value) async {
     final parts = _pathParts;
-    Map<String, dynamic> data = _database._store;
     final lastPart = parts.removeLast();
+    Map<String, dynamic> data = _database._store;
 
     for (final part in parts) {
       if (!data.containsKey(part) || data[part] is! Map<String, dynamic>) {
@@ -59,13 +59,9 @@ class FakeDatabaseReference extends FakeQuery implements DatabaseReference {
       data = data[part] as Map<String, dynamic>;
     }
 
-    if (_isEmptyOrNull(value)) {
-      data.remove(lastPart);
-    } else {
-      data[lastPart] = value;
-    }
+    data[lastPart] = value;
 
-    _cleanupEmptyEntries();
+    _cleanUp();
   }
 
   @override
@@ -97,36 +93,30 @@ class FakeDatabaseReference extends FakeQuery implements DatabaseReference {
     });
   }
 
-  void _cleanupEmptyEntries() {
+  void _cleanUp() {
     final parts = _pathParts;
+    final lastPart = parts.removeLast();
     Map<String, dynamic> data = _database._store;
-    List<Map<String, dynamic>> parentMaps = [data];
+    List<Object?> levels = [data];
 
     for (final part in parts) {
-      if (data.containsKey(part) && data[part] is Map<String, dynamic>) {
-        data = data[part] as Map<String, dynamic>;
-        parentMaps.add(data);
-      } else {
-        break;
-      }
+      data = data[part] as Map<String, dynamic>;
+      levels.add(data);
     }
 
-    for (int i = parentMaps.length - 1; i > 0; i--) {
-      final currentMap = parentMaps[i];
-      final parentMap = parentMaps[i - 1];
+    levels.add(data[lastPart]);
+    parts.add(lastPart);
+
+    for (int i = levels.length - 1; i > 0; i--) {
+      final currentMap = levels[i];
+      final parentMap = levels[i - 1];
       final key = parts[i - 1];
 
       if (_isEmptyOrNull(currentMap)) {
-        parentMap.remove(key);
+        (parentMap as Map<String, dynamic>).remove(key);
       } else {
         break;
       }
-    }
-
-    final root = _database._store['/'];
-
-    if (root == null || (root is Map && root.isEmpty)) {
-      _database._store.remove('/');
     }
   }
 
