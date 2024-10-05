@@ -59,8 +59,8 @@ class FakeDatabaseReference extends FakeQuery implements DatabaseReference {
       data = data[part] as Map<String, dynamic>;
     }
 
+    _cleanDown(value);
     data[lastPart] = value;
-
     _cleanUp();
   }
 
@@ -91,6 +91,22 @@ class FakeDatabaseReference extends FakeQuery implements DatabaseReference {
     value.forEach((key, val) {
       data[key] = val;
     });
+  }
+
+  void _cleanDown(Object? value) {
+    if (value is Map) {
+      value.removeWhere((key, val) {
+        _cleanDown(val);
+        return _isEmptyOrNull(val);
+      });
+    }
+
+    if (value is List) {
+      value.removeWhere((item) {
+        _cleanDown(item);
+        return _isEmptyOrNull(item);
+      });
+    }
   }
 
   void _cleanUp() {

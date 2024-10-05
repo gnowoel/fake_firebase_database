@@ -197,6 +197,42 @@ void main() {
       expect(snapshot2.value, null);
     });
 
+    test('remove `null` entries downward', () async {
+      final ref1 = database.ref('users/123');
+
+      await ref1.set({
+        'John': {'addresses': null}
+      });
+
+      final ref2 = database.ref();
+      final snapshot2 = await ref2.get();
+      expect(snapshot2.value, null);
+    });
+
+    test('remove empty map entries downward', () async {
+      final ref1 = database.ref('users/123');
+
+      await ref1.set({
+        'John': {'addresses': {}}
+      });
+
+      final ref2 = database.ref();
+      final snapshot2 = await ref2.get();
+      expect(snapshot2.value, null);
+    });
+
+    test('remove empty list entries downward', () async {
+      final ref1 = database.ref('users/123');
+
+      await ref1.set({
+        'John': {'addresses': []}
+      });
+
+      final ref2 = database.ref();
+      final snapshot2 = await ref2.get();
+      expect(snapshot2.value, null);
+    });
+
     test('can save a path with extra slashes', () async {
       final ref1 = database.ref('//');
       final ref2 = database.ref('//users//');
@@ -209,26 +245,38 @@ void main() {
 
     test('can use a path with extra slashes', () async {
       final value = {'name': 'John', 'age': 18};
+      final ref1 = database.ref('//');
 
-      final ref11 = database.ref('//');
-      final ref21 = database.ref('//users//');
-      final ref31 = database.ref('//users//123//');
+      await ref1.set(value);
 
-      await ref11.set(value);
-      await ref21.set(value);
-      await ref31.set(value);
+      final ref2 = database.ref('');
+      final snapshot2 = await ref2.get();
 
-      final ref12 = database.ref('');
-      final ref22 = database.ref('users');
-      final ref32 = database.ref('users/123');
+      expect(snapshot2.value, value);
+    });
 
-      final snapshot12 = await ref12.get();
-      final snapshot22 = await ref22.get();
-      final snapshot32 = await ref32.get();
+    test('can use a path with more extra slashes', () async {
+      final value = {'name': 'John', 'age': 18};
+      final ref1 = database.ref('//users//');
 
-      expect(snapshot12.value, value);
-      expect(snapshot22.value, value);
-      expect(snapshot32.value, value);
+      await ref1.set(value);
+
+      final ref2 = database.ref('users');
+      final snapshot2 = await ref2.get();
+
+      expect(snapshot2.value, value);
+    });
+
+    test('can use a path with even more extra slashes', () async {
+      final value = {'name': 'John', 'age': 18};
+      final ref1 = database.ref('//users//123//');
+
+      await ref1.set(value);
+
+      final ref2 = database.ref('users/123');
+      final snapshot2 = await ref2.get();
+
+      expect(snapshot2.value, value);
     });
   });
 }
