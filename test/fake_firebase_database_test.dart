@@ -67,6 +67,15 @@ void main() {
       expect(snapshot.value, value);
     });
 
+    test('A map key should be of type String', () async {
+      final ref = database.ref();
+      final value = {18: 'age'};
+
+      final future = ref.set(value);
+
+      await expectLater(future, throwsA(isA<TypeError>()));
+    });
+
     test('can get() the value from a shallow path', () async {
       final ref1 = database.ref();
       final addresses = {'line1': '100 Mountain View'};

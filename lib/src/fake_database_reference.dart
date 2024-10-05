@@ -95,6 +95,7 @@ class FakeDatabaseReference extends FakeQuery implements DatabaseReference {
 
   void _cleanDown(Object? value) {
     if (value is Map) {
+      value = value.cast<String, dynamic>();
       value.removeWhere((key, val) {
         _cleanDown(val);
         return _isEmptyOrNull(val);
@@ -124,12 +125,12 @@ class FakeDatabaseReference extends FakeQuery implements DatabaseReference {
     parts.add(lastPart);
 
     for (int i = levels.length - 1; i > 0; i--) {
-      final currentMap = levels[i];
-      final parentMap = levels[i - 1];
+      final currentLevel = levels[i];
+      final parentLevel = levels[i - 1];
       final key = parts[i - 1];
 
-      if (_isEmptyOrNull(currentMap)) {
-        (parentMap as Map<String, dynamic>).remove(key);
+      if (_isEmptyOrNull(currentLevel)) {
+        (parentLevel as Map<String, dynamic>).remove(key);
       } else {
         break;
       }
