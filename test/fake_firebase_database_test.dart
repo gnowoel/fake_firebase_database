@@ -128,6 +128,16 @@ void main() {
       expect(snapshot.value, value);
     });
 
+    test('the type should be correct after setting a map', () async {
+      final ref = database.ref('users/123');
+      final value = {'age': 18};
+
+      await ref.set(value);
+
+      final snapshot = await ref.get();
+      expect(snapshot.value, isA<Map<String, dynamic>>());
+    });
+
     test('can update() data at the root path', () async {
       final ref = database.ref();
 
@@ -176,7 +186,7 @@ void main() {
       expect(snapshot.value, null);
     });
 
-    test('remove `null` entries upward', () async {
+    test('clean up `null` entries upward', () async {
       final ref1 = database.ref('users/123');
 
       await ref1.set(null);
@@ -186,7 +196,7 @@ void main() {
       expect(snapshot2.value, null);
     });
 
-    test('remove empty map entries upward', () async {
+    test('clean up empty map entries upward', () async {
       final ref1 = database.ref('users/123');
 
       await ref1.set({});
@@ -196,7 +206,7 @@ void main() {
       expect(snapshot2.value, null);
     });
 
-    test('remove empty list entries upward', () async {
+    test('clean up empty list entries upward', () async {
       final ref1 = database.ref('users/123');
 
       await ref1.set([]);
@@ -206,7 +216,7 @@ void main() {
       expect(snapshot2.value, null);
     });
 
-    test('remove `null` entries downward', () async {
+    test('clean up `null` entries downward', () async {
       final ref1 = database.ref('users/123');
 
       await ref1.set({
@@ -218,7 +228,7 @@ void main() {
       expect(snapshot2.value, null);
     });
 
-    test('remove empty map entries downward', () async {
+    test('clean up empty map entries downward', () async {
       final ref1 = database.ref('users/123');
 
       await ref1.set({
@@ -230,12 +240,23 @@ void main() {
       expect(snapshot2.value, null);
     });
 
-    test('remove empty list entries downward', () async {
+    test('clean up empty list entries downward', () async {
       final ref1 = database.ref('users/123');
 
       await ref1.set({
         'John': {'addresses': []}
       });
+
+      final ref2 = database.ref();
+      final snapshot2 = await ref2.get();
+      expect(snapshot2.value, null);
+    });
+
+    test('clean up `null` or empty entries when updating', () async {
+      final ref1 = database.ref('users/123');
+
+      await ref1.set({'age': 18 as dynamic}); // Mimic a model
+      await ref1.update({'age': null});
 
       final ref2 = database.ref();
       final snapshot2 = await ref2.get();

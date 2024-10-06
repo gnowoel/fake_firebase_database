@@ -91,6 +91,9 @@ class FakeDatabaseReference extends FakeQuery implements DatabaseReference {
     value.forEach((key, val) {
       data[key] = val;
     });
+
+    _cleanDown(data);
+    _cleanUp();
   }
 
   void _cleanDown(Object? value) {
