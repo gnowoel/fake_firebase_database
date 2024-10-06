@@ -306,5 +306,12 @@ void main() {
       expect(ref4.key, 'users');
       expect(ref5.key, '123');
     });
+
+    test('`push()` returns a push ID', () async {
+      final ref = database.ref('users').push();
+
+      expect(ref.key?.length, 20);
+      expect(ref.path, startsWith('users/'));
+    });
   });
 }

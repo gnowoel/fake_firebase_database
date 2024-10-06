@@ -24,8 +24,10 @@ class FakeDatabaseReference extends FakeQuery implements DatabaseReference {
 
   @override
   DatabaseReference push() {
-    // TODO: implement push
-    throw UnimplementedError();
+    final pushId = PushId.generate();
+    final newPath = (_pathParts.sublist(1)..add(pushId)).join('/');
+
+    return FakeDatabaseReference(_database, newPath);
   }
 
   @override

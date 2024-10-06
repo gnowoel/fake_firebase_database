@@ -3,6 +3,8 @@ library fake_firebase_database;
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
 
+import 'src/utils/push_id.dart';
+
 part 'src/fake_data_snapshot.dart';
 part 'src/fake_database_event.dart';
 part 'src/fake_database_reference.dart';
