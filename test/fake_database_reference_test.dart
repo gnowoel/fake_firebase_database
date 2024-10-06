@@ -311,7 +311,7 @@ void main() {
       final ref = database.ref('users').push();
 
       expect(ref.key?.length, 20);
-      expect(ref.path, startsWith('users/'));
+      expect(ref.path, startsWith('users/-'));
     });
   });
 }

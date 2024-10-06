@@ -3,16 +3,16 @@
 
 import 'dart:math';
 
-const s1 = '-';
-const s2 = '0123456789';
-const s3 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-const s4 = '_';
-const s5 = 'abcdefghijklmnopqrstuvwxyz';
+const _s1 = '-';
+const _s2 = '0123456789';
+const _s3 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+const _s4 = '_';
+const _s5 = 'abcdefghijklmnopqrstuvwxyz';
 
 final Random _random = Random();
 
 class PushId {
-  static const String chars = s1 + s2 + s3 + s4 + s5;
+  static const String _chars = _s1 + _s2 + _s3 + _s4 + _s5;
 
   static int? _then;
 
@@ -23,7 +23,7 @@ class PushId {
     final List<String> head = List.filled(8, '');
 
     for (var i = 7; i >= 0; i--) {
-      head[i] = chars[now % 64];
+      head[i] = _chars[now % 64];
       now = (now / 64).floor();
     }
 
@@ -42,7 +42,7 @@ class PushId {
       }
     }
 
-    final tail = _salt.map((n) => chars[n]);
+    final tail = _salt.map((n) => _chars[n]);
     return head.join() + tail.join();
   }
 }
