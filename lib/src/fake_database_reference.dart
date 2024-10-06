@@ -10,8 +10,7 @@ class FakeDatabaseReference extends FakeQuery implements DatabaseReference {
   }
 
   @override
-  // TODO: implement key
-  String? get key => throw UnimplementedError();
+  String? get key => _path?.split('/').last;
 
   @override
   OnDisconnect onDisconnect() {

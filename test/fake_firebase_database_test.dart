@@ -322,5 +322,19 @@ void main() {
       expect(ref4.path, '/users');
       expect(ref5.path, '/users/123');
     });
+
+    test('`key` returns the last part of the path', () async {
+      final ref1 = database.ref();
+      final ref2 = database.ref('');
+      final ref3 = database.ref('/');
+      final ref4 = database.ref('/users');
+      final ref5 = database.ref('/users/123');
+
+      expect(ref1.key, null);
+      expect(ref2.key, '');
+      expect(ref3.key, '');
+      expect(ref4.key, 'users');
+      expect(ref5.key, '123');
+    });
   });
 }
