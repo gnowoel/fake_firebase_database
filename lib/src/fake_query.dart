@@ -2,7 +2,7 @@ part of '../fake_firebase_database.dart';
 
 class FakeQuery implements Query {
   final FakeFirebaseDatabase _database;
-  final String _path;
+  final String? _path;
 
   FakeQuery(this._database, this._path);
 
@@ -42,7 +42,7 @@ class FakeQuery implements Query {
   }
 
   List<String> get _pathParts {
-    final parts = _path.split('/').where((part) => part.isNotEmpty).toList();
+    final parts = path.split('/').where((part) => part.isNotEmpty).toList();
     parts.insert(0, '/');
     return parts;
   }
@@ -117,7 +117,7 @@ class FakeQuery implements Query {
   }
 
   @override
-  String get path => _path;
+  String get path => _path ?? '/';
 
   @override
   DatabaseReference get ref => FakeDatabaseReference(_database, _path);
