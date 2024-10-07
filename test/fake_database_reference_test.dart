@@ -301,8 +301,8 @@ void main() {
       final ref5 = database.ref('/users/123');
 
       expect(ref1.key, null);
-      expect(ref2.key, '');
-      expect(ref3.key, '');
+      expect(ref2.key, null);
+      expect(ref3.key, null);
       expect(ref4.key, 'users');
       expect(ref5.key, '123');
     });

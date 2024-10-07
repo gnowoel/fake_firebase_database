@@ -10,7 +10,7 @@ class FakeDatabaseReference extends FakeQuery implements DatabaseReference {
   }
 
   @override
-  String? get key => _path?.split('/').last;
+  String? get key => path == '/' ? null : _pathParts.last;
 
   @override
   OnDisconnect onDisconnect() {
