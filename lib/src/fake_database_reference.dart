@@ -37,8 +37,7 @@ class FakeDatabaseReference extends FakeQuery implements DatabaseReference {
   }
 
   @override
-  // TODO: implement root
-  DatabaseReference get root => throw UnimplementedError();
+  DatabaseReference get root => FakeDatabaseReference(_database, '/');
 
   @override
   Future<TransactionResult> runTransaction(

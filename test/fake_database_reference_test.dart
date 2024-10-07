@@ -344,7 +344,7 @@ void main() {
       });
     });
 
-    group('parent()', () {
+    group('get parent', () {
       test('from the root ref', () async {
         final ref1 = database.ref('/').parent;
         final ref2 = database.ref('/users').parent?.parent;
@@ -359,6 +359,15 @@ void main() {
 
         expect(ref1?.path, '/');
         expect(ref2?.path, '/users');
+      });
+    });
+
+    group('get root', () {
+      test('returns a root reference', () async {
+        final ref1 = database.ref('/users/123');
+        final ref2 = ref1.root;
+
+        expect(ref2.path, '/');
       });
     });
   });
