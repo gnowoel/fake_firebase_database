@@ -19,8 +19,13 @@ class FakeDatabaseReference extends FakeQuery implements DatabaseReference {
   }
 
   @override
-  // TODO: implement parent
-  DatabaseReference? get parent => throw UnimplementedError();
+  DatabaseReference? get parent {
+    if (_pathParts.length == 1) {
+      return null;
+    }
+    final parentPath = '/${(_pathParts.sublist(1)..removeLast()).join('/')}';
+    return FakeDatabaseReference(_database, parentPath);
+  }
 
   @override
   DatabaseReference push() {
