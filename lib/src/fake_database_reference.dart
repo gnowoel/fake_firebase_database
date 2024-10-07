@@ -5,8 +5,8 @@ class FakeDatabaseReference extends FakeQuery implements DatabaseReference {
 
   @override
   DatabaseReference child(String path) {
-    // TODO: implement child
-    throw UnimplementedError();
+    final base = _path == null ? '' : '$_path/';
+    return FakeDatabaseReference(_database, base + path);
   }
 
   @override

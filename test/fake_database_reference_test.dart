@@ -313,5 +313,39 @@ void main() {
       expect(ref.key?.length, 20);
       expect(ref.path, startsWith('users/-'));
     });
+
+    group('child()', () {
+      test('from the root ref', () async {
+        final ref1 = database.ref().child('');
+        final ref2 = database.ref().child('users');
+        final ref3 = database.ref().child('/users');
+        final ref4 = database.ref().child('/users/');
+        final ref5 = database.ref().child('users/123');
+        final ref6 = database.ref().child('//users//123//');
+
+        expect(ref1.path, '');
+        expect(ref2.path, 'users');
+        expect(ref3.path, '/users');
+        expect(ref4.path, '/users/');
+        expect(ref5.path, 'users/123');
+        expect(ref6.path, '//users//123//');
+      });
+
+      test('from a non-root ref', () async {
+        final ref1 = database.ref('users/123').child('');
+        final ref2 = database.ref('users/123').child('addresses');
+        final ref3 = database.ref('users/123').child('/addresses');
+        final ref4 = database.ref('users/123').child('/addresses/');
+        final ref5 = database.ref('users/123').child('addresses/line1');
+        final ref6 = database.ref('users/123').child('//addresses//line1//');
+
+        expect(ref1.path, 'users/123/');
+        expect(ref2.path, 'users/123/addresses');
+        expect(ref3.path, 'users/123//addresses');
+        expect(ref4.path, 'users/123//addresses/');
+        expect(ref5.path, 'users/123/addresses/line1');
+        expect(ref6.path, 'users/123///addresses//line1//');
+      });
+    });
   });
 }
