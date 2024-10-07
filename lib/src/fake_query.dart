@@ -41,12 +41,6 @@ class FakeQuery implements Query {
     return FakeDataSnapshot(ref, data);
   }
 
-  List<String> get _pathParts {
-    final parts = path.split('/').where((part) => part.isNotEmpty).toList();
-    parts.insert(0, '/');
-    return parts;
-  }
-
   @override
   Future<void> keepSynced(bool value) {
     // TODO: implement keepSynced
@@ -117,7 +111,7 @@ class FakeQuery implements Query {
   }
 
   @override
-  String get path => _path ?? '/';
+  String get path => _normalizePath(_path);
 
   @override
   DatabaseReference get ref => FakeDatabaseReference(_database, _path);
@@ -132,5 +126,19 @@ class FakeQuery implements Query {
   Query startAt(Object? value, {String? key}) {
     // TODO: implement startAt
     throw UnimplementedError();
+  }
+
+  List<String> get _pathParts {
+    final parts = _splitPath(path);
+    return parts..insert(0, '/');
+  }
+
+  String _normalizePath(String? path) {
+    final relativePath = _splitPath(path ?? '').join('/');
+    return '/$relativePath';
+  }
+
+  List<String> _splitPath(String path) {
+    return path.split('/').where((p) => p.isNotEmpty).toList();
   }
 }

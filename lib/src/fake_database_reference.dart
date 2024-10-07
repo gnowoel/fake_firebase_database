@@ -5,8 +5,8 @@ class FakeDatabaseReference extends FakeQuery implements DatabaseReference {
 
   @override
   DatabaseReference child(String path) {
-    final base = _path == null ? '' : '$_path/';
-    return FakeDatabaseReference(_database, base + path);
+    final childPath = _normalizePath('${this.path}/$path');
+    return FakeDatabaseReference(_database, childPath);
   }
 
   @override
@@ -20,9 +20,7 @@ class FakeDatabaseReference extends FakeQuery implements DatabaseReference {
 
   @override
   DatabaseReference? get parent {
-    if (_pathParts.length == 1) {
-      return null;
-    }
+    if (path == '/') return null;
     final parentPath = '/${(_pathParts.sublist(1)..removeLast()).join('/')}';
     return FakeDatabaseReference(_database, parentPath);
   }

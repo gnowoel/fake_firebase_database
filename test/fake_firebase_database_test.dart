@@ -36,7 +36,7 @@ void main() {
       final ref = database.ref('users/123');
 
       expect(ref, isA<DatabaseReference>());
-      expect(ref.path, 'users/123');
+      expect(ref.path, '/users/123');
     });
   });
 }

@@ -238,9 +238,9 @@ void main() {
       final ref2 = database.ref('//users//');
       final ref3 = database.ref('//users//123//');
 
-      expect(ref1.path, '//');
-      expect(ref2.path, '//users//');
-      expect(ref3.path, '//users//123//');
+      expect(ref1.path, '/');
+      expect(ref2.path, '/users');
+      expect(ref3.path, '/users/123');
     });
 
     test('can use a path with extra slashes', () async {
@@ -287,7 +287,7 @@ void main() {
       final ref5 = database.ref('/users/123');
 
       expect(ref1.path, '/');
-      expect(ref2.path, '');
+      expect(ref2.path, '/');
       expect(ref3.path, '/');
       expect(ref4.path, '/users');
       expect(ref5.path, '/users/123');
@@ -311,7 +311,7 @@ void main() {
       final ref = database.ref('users').push();
 
       expect(ref.key?.length, 20);
-      expect(ref.path, startsWith('users/-'));
+      expect(ref.path, startsWith('/users/-'));
     });
 
     group('child()', () {
@@ -323,12 +323,12 @@ void main() {
         final ref5 = database.ref().child('users/123');
         final ref6 = database.ref().child('//users//123//');
 
-        expect(ref1.path, '');
-        expect(ref2.path, 'users');
+        expect(ref1.path, '/');
+        expect(ref2.path, '/users');
         expect(ref3.path, '/users');
-        expect(ref4.path, '/users/');
-        expect(ref5.path, 'users/123');
-        expect(ref6.path, '//users//123//');
+        expect(ref4.path, '/users');
+        expect(ref5.path, '/users/123');
+        expect(ref6.path, '/users/123');
       });
 
       test('from a non-root ref', () async {
@@ -339,12 +339,12 @@ void main() {
         final ref5 = database.ref('users/123').child('addresses/line1');
         final ref6 = database.ref('users/123').child('//addresses//line1//');
 
-        expect(ref1.path, 'users/123/');
-        expect(ref2.path, 'users/123/addresses');
-        expect(ref3.path, 'users/123//addresses');
-        expect(ref4.path, 'users/123//addresses/');
-        expect(ref5.path, 'users/123/addresses/line1');
-        expect(ref6.path, 'users/123///addresses//line1//');
+        expect(ref1.path, '/users/123');
+        expect(ref2.path, '/users/123/addresses');
+        expect(ref3.path, '/users/123/addresses');
+        expect(ref4.path, '/users/123/addresses');
+        expect(ref5.path, '/users/123/addresses/line1');
+        expect(ref6.path, '/users/123/addresses/line1');
       });
     });
 
