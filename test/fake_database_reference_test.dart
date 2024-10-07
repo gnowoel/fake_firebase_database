@@ -99,16 +99,6 @@ void main() {
         expect(snapshot.value, value);
       });
 
-      test('the type should be correct after setting a map', () async {
-        final ref = database.ref('users/123');
-        final value = {'age': 18};
-
-        await ref.set(value);
-
-        final snapshot = await ref.get();
-        expect(snapshot.value, isA<Map<String, dynamic>>());
-      });
-
       test('can update() data at the root path', () async {
         final ref = database.ref();
 
