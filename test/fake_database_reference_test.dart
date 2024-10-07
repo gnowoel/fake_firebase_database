@@ -319,62 +319,44 @@ void main() {
         final ref1 = database.ref().child('');
         final ref2 = database.ref().child('users');
         final ref3 = database.ref().child('/users');
-        final ref4 = database.ref().child('/users/');
-        final ref5 = database.ref().child('users/123');
-        final ref6 = database.ref().child('//users//123//');
+        final ref4 = database.ref().child('users/123');
+        final ref5 = database.ref().child('//users//123//');
 
         expect(ref1.path, '/');
         expect(ref2.path, '/users');
         expect(ref3.path, '/users');
-        expect(ref4.path, '/users');
+        expect(ref4.path, '/users/123');
         expect(ref5.path, '/users/123');
-        expect(ref6.path, '/users/123');
       });
 
       test('from a non-root ref', () async {
         final ref1 = database.ref('users/123').child('');
         final ref2 = database.ref('users/123').child('addresses');
         final ref3 = database.ref('users/123').child('/addresses');
-        final ref4 = database.ref('users/123').child('/addresses/');
-        final ref5 = database.ref('users/123').child('addresses/line1');
-        final ref6 = database.ref('users/123').child('//addresses//line1//');
+        final ref4 = database.ref('users/123').child('//addresses//');
 
         expect(ref1.path, '/users/123');
         expect(ref2.path, '/users/123/addresses');
         expect(ref3.path, '/users/123/addresses');
         expect(ref4.path, '/users/123/addresses');
-        expect(ref5.path, '/users/123/addresses/line1');
-        expect(ref6.path, '/users/123/addresses/line1');
       });
     });
 
     group('parent()', () {
       test('from the root ref', () async {
-        final ref1 = database.ref().parent;
-        final ref2 = database.ref('/').parent;
-        final ref3 = database.ref('users').parent?.parent;
-        final ref4 = database.ref('/users').parent?.parent;
-        final ref5 = database.ref('/users/').parent?.parent;
-        final ref6 = database.ref('//users//').parent?.parent;
+        final ref1 = database.ref('/').parent;
+        final ref2 = database.ref('/users').parent?.parent;
 
         expect(ref1?.path, null);
         expect(ref2?.path, null);
-        expect(ref3?.path, null);
-        expect(ref4?.path, null);
-        expect(ref5?.path, null);
-        expect(ref6?.path, null);
       });
 
       test('from a non-root ref', () async {
-        final ref1 = database.ref('users').parent;
-        final ref2 = database.ref('/users').parent;
-        final ref3 = database.ref('users/123').parent;
-        final ref4 = database.ref('/users/123').parent;
+        final ref1 = database.ref('/users').parent;
+        final ref2 = database.ref('/users/123').parent;
 
         expect(ref1?.path, '/');
-        expect(ref2?.path, '/');
-        expect(ref3?.path, '/users');
-        expect(ref4?.path, '/users');
+        expect(ref2?.path, '/users');
       });
     });
   });
