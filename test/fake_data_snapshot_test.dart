@@ -84,5 +84,21 @@ void main() {
         expect(snapshot.exists, false);
       });
     });
+
+    group('get key', () {
+      test('returns null if at the root path', () {
+        final ref = database.ref('/');
+        final snapshot = FakeDataSnapshot(ref, null);
+
+        expect(snapshot.key, null);
+      });
+
+      test('returns non-null if at a non-root path', () {
+        final ref = database.ref('users/123');
+        final snapshot = FakeDataSnapshot(ref, null);
+
+        expect(snapshot.key, '123');
+      });
+    });
   });
 }
