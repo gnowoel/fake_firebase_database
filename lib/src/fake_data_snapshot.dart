@@ -24,8 +24,14 @@ class FakeDataSnapshot implements DataSnapshot {
   }
 
   @override
-  // TODO: implement children
-  Iterable<DataSnapshot> get children => throw UnimplementedError();
+  Iterable<DataSnapshot> get children {
+    if (_value is Map) {
+      return _value.entries.map((entry) {
+        return FakeDataSnapshot(_ref.child(entry.key), entry.value);
+      });
+    }
+    return [];
+  }
 
   @override
   bool get exists => _value != null;

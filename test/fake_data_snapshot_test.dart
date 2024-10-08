@@ -109,5 +109,71 @@ void main() {
         expect(snapshot.ref, ref);
       });
     });
+
+    group('children', () {
+      test('returns empty iterable for null value', () {
+        final ref = database.ref('users');
+        final snapshot = FakeDataSnapshot(ref, null);
+
+        expect(snapshot.children, isEmpty);
+      });
+
+      test('returns empty iterable for non-map value', () {
+        final ref = database.ref('users/123/name');
+        final snapshot = FakeDataSnapshot(ref, 'John');
+
+        expect(snapshot.children, isEmpty);
+      });
+
+      test('returns correct children for map value', () {
+        final ref = database.ref('users');
+        final value = {
+          'user1': {'name': 'John', 'age': 30},
+          'user2': {'name': 'Jane', 'age': 25},
+        };
+        final snapshot = FakeDataSnapshot(ref, value);
+
+        final children = snapshot.children.toList();
+        expect(children.length, 2);
+
+        expect(children[0].key, 'user1');
+        expect(children[0].value, {'name': 'John', 'age': 30});
+        expect(children[0].ref.path, '/users/user1');
+
+        expect(children[1].key, 'user2');
+        expect(children[1].value, {'name': 'Jane', 'age': 25});
+        expect(children[1].ref.path, '/users/user2');
+      });
+
+      test('returns correct children for nested map value', () {
+        final ref = database.ref('users/user1');
+        final value = {
+          'name': 'John',
+          'address': {
+            'city': 'New York',
+            'country': 'USA',
+          },
+        };
+        final snapshot = FakeDataSnapshot(ref, value);
+
+        final children = snapshot.children.toList();
+        expect(children.length, 2);
+
+        expect(children[0].key, 'name');
+        expect(children[0].value, 'John');
+        expect(children[0].ref.path, '/users/user1/name');
+
+        expect(children[1].key, 'address');
+        expect(children[1].value, {'city': 'New York', 'country': 'USA'});
+        expect(children[1].ref.path, '/users/user1/address');
+      });
+
+      test('returns empty iterable for empty map', () {
+        final ref = database.ref('users');
+        final snapshot = FakeDataSnapshot(ref, {});
+
+        expect(snapshot.children, isEmpty);
+      });
+    });
   });
 }
