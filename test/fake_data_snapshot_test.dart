@@ -67,5 +67,22 @@ void main() {
         expect(childSnapshot.value, 'John');
       });
     });
+
+    group('get exists', () {
+      test('returns true when value is not null', () {
+        final ref = database.ref('users/123');
+        final value = {'name': 'John', 'age': 30};
+        final snapshot = FakeDataSnapshot(ref, value);
+
+        expect(snapshot.exists, true);
+      });
+
+      test('returns false when value is null', () {
+        final ref = database.ref('users/123');
+        final snapshot = FakeDataSnapshot(ref, null);
+
+        expect(snapshot.exists, false);
+      });
+    });
   });
 }

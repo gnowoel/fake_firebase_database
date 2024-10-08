@@ -9,7 +9,7 @@ class FakeDataSnapshot implements DataSnapshot {
   @override
   DataSnapshot child(String path) {
     final parts = _splitPath(path);
-    Object? childValue = value;
+    Object? childValue = _value;
 
     for (final part in parts) {
       if (childValue is Map && childValue.containsKey(part)) {
@@ -28,8 +28,7 @@ class FakeDataSnapshot implements DataSnapshot {
   Iterable<DataSnapshot> get children => throw UnimplementedError();
 
   @override
-  // TODO: implement exists
-  bool get exists => throw UnimplementedError();
+  bool get exists => _value != null;
 
   @override
   bool hasChild(String path) {
