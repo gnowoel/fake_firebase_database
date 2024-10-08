@@ -100,5 +100,14 @@ void main() {
         expect(snapshot.key, '123');
       });
     });
+
+    group('get ref', () {
+      test('returns the correct DatabaseReference', () {
+        final ref = database.ref('users/123');
+        final snapshot = FakeDataSnapshot(ref, null);
+
+        expect(snapshot.ref, ref);
+      });
+    });
   });
 }

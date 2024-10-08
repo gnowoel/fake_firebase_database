@@ -44,8 +44,7 @@ class FakeDataSnapshot implements DataSnapshot {
   Object? get priority => throw UnimplementedError();
 
   @override
-  // TODO: implement ref
-  DatabaseReference get ref => throw UnimplementedError();
+  DatabaseReference get ref => _ref;
 
   @override
   Object? get value => _value;
