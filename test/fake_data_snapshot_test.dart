@@ -175,5 +175,70 @@ void main() {
         expect(snapshot.children, isEmpty);
       });
     });
+
+    group('hasChild()', () {
+      test('returns true for existing child', () {
+        final ref = database.ref('users');
+        final value = {
+          'user1': {'name': 'John', 'age': 30},
+          'user2': {'name': 'Jane', 'age': 25},
+        };
+        final snapshot = FakeDataSnapshot(ref, value);
+
+        expect(snapshot.hasChild('user1'), isTrue);
+        expect(snapshot.hasChild('user2'), isTrue);
+      });
+
+      test('returns false for non-existing child', () {
+        final ref = database.ref('users');
+        final value = {
+          'user1': {'name': 'John', 'age': 30},
+          'user2': {'name': 'Jane', 'age': 25},
+        };
+        final snapshot = FakeDataSnapshot(ref, value);
+
+        expect(snapshot.hasChild('user3'), isFalse);
+      });
+
+      test('returns true for existing nested child', () {
+        final ref = database.ref('users');
+        final value = {
+          'user1': {
+            'name': 'John',
+            'address': {'city': 'New York'}
+          },
+        };
+        final snapshot = FakeDataSnapshot(ref, value);
+
+        expect(snapshot.hasChild('user1/address/city'), isTrue);
+      });
+
+      test('returns false for non-existing nested child', () {
+        final ref = database.ref('users');
+        final value = {
+          'user1': {
+            'name': 'John',
+            'address': {'city': 'New York'}
+          },
+        };
+        final snapshot = FakeDataSnapshot(ref, value);
+
+        expect(snapshot.hasChild('user1/address/country'), isFalse);
+      });
+
+      test('returns false for child of primitive value', () {
+        final ref = database.ref('users/user1/name');
+        final snapshot = FakeDataSnapshot(ref, 'John');
+
+        expect(snapshot.hasChild('firstname'), isFalse);
+      });
+
+      test('returns false for child of null value', () {
+        final ref = database.ref('users/user1');
+        final snapshot = FakeDataSnapshot(ref, null);
+
+        expect(snapshot.hasChild('name'), isFalse);
+      });
+    });
   });
 }

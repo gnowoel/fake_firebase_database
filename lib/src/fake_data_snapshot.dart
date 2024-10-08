@@ -38,8 +38,7 @@ class FakeDataSnapshot implements DataSnapshot {
 
   @override
   bool hasChild(String path) {
-    // TODO: implement hasChild
-    throw UnimplementedError();
+    return child(path).exists;
   }
 
   @override
