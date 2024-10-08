@@ -8,8 +8,19 @@ class FakeDataSnapshot implements DataSnapshot {
 
   @override
   DataSnapshot child(String path) {
-    // TODO: implement child
-    throw UnimplementedError();
+    final parts = _splitPath(path);
+    Object? childValue = value;
+
+    for (final part in parts) {
+      if (childValue is Map && childValue.containsKey(part)) {
+        childValue = childValue[part];
+      } else {
+        childValue = null;
+        break;
+      }
+    }
+
+    return FakeDataSnapshot(_ref.child(path), childValue);
   }
 
   @override
@@ -40,4 +51,8 @@ class FakeDataSnapshot implements DataSnapshot {
 
   @override
   Object? get value => _value;
+
+  List<String> _splitPath(String path) {
+    return path.split('/').where((p) => p.isNotEmpty).toList();
+  }
 }

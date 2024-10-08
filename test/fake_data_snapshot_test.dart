@@ -54,5 +54,18 @@ void main() {
         expect(snapshot.value, value);
       });
     });
+
+    group('child()', () {
+      test('returns a new DataSnapshot for the specified path', () {
+        final ref = database.ref('users');
+        final value = {
+          '123': {'name': 'John', 'age': 30}
+        };
+        final snapshot = FakeDataSnapshot(ref, value);
+
+        final childSnapshot = snapshot.child('123/name');
+        expect(childSnapshot.value, 'John');
+      });
+    });
   });
 }
