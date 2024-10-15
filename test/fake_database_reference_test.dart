@@ -218,7 +218,7 @@ void main() {
       test('clean up `null` or empty entries when updating', () async {
         final ref1 = database.ref('users/123');
 
-        await ref1.set({'age': 18 as dynamic}); // Mimic a model
+        await ref1.set({'age': 18 as dynamic}); // Mimic a model property
         await ref1.update({'age': null});
 
         final ref2 = database.ref();

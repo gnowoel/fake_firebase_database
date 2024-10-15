@@ -160,8 +160,16 @@ class FakeQuery implements Query {
 
   EntryList _applyOrderBy(EntryList entries) {
     entries.sort((a, b) {
-      return (a.value[_orderBy!] as Comparable).compareTo(b.value[_orderBy!]);
+      final aValue = a.value[_orderBy!];
+      final bValue = b.value[_orderBy!];
+
+      if (aValue == null && bValue == null) return 0;
+      if (aValue == null) return -1;
+      if (bValue == null) return 1;
+
+      return (aValue as Comparable).compareTo(bValue);
     });
+
     return entries;
   }
 }

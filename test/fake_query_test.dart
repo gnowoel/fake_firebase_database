@@ -32,7 +32,7 @@ void main() {
         final usersRef = database.ref('users');
         await usersRef.set({
           '1': {'name': 'Alice', 'age': 25},
-          '2': {'name': 'Bob', 'age': 35},
+          '2': {'name': 'Bob', 'age': 35 as dynamic}, // Mimic a model property
           '3': {'name': 'Charlie', 'age': 30},
         });
       });
@@ -46,6 +46,19 @@ void main() {
         expect(children[0].child('name').value, 'Alice');
         expect(children[1].child('name').value, 'Charlie');
         expect(children[2].child('name').value, 'Bob');
+      });
+
+      test('works correctly for `null` values', () async {
+        await database.ref('users/2').update({'age': null});
+
+        final query = database.ref('users').orderByChild('age');
+        final snapshot = await query.get();
+        final children = snapshot.children.toList();
+
+        expect(children.length, 3);
+        expect(children[0].child('name').value, 'Bob');
+        expect(children[1].child('name').value, 'Alice');
+        expect(children[2].child('name').value, 'Charlie');
       });
     });
   });
