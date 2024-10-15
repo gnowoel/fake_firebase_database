@@ -3,6 +3,7 @@ part of '../fake_firebase_database.dart';
 class FakeQuery implements Query {
   final FakeFirebaseDatabase _database;
   final String? _path;
+  String? _orderBy;
 
   FakeQuery(this._database, this._path);
 
@@ -94,8 +95,8 @@ class FakeQuery implements Query {
 
   @override
   Query orderByChild(String path) {
-    // TODO: implement orderByChild
-    throw UnimplementedError();
+    _orderBy = path;
+    return this;
   }
 
   @override
@@ -150,6 +151,17 @@ class FakeQuery implements Query {
 
   List<MapEntry<String, dynamic>> _applyQuery(
       List<MapEntry<String, dynamic>> entries) {
+    if (_orderBy != null) {
+      entries = _applyOrderBy(entries);
+    }
+    return entries;
+  }
+
+  List<MapEntry<String, dynamic>> _applyOrderBy(
+      List<MapEntry<String, dynamic>> entries) {
+    entries.sort((a, b) {
+      return (a.value[_orderBy!] as Comparable).compareTo(b.value[_orderBy!]);
+    });
     return entries;
   }
 }
