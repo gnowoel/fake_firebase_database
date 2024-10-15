@@ -1,5 +1,7 @@
 part of '../fake_firebase_database.dart';
 
+typedef EntryList = List<MapEntry<String, dynamic>>;
+
 class FakeQuery implements Query {
   final FakeFirebaseDatabase _database;
   final String? _path;
@@ -40,7 +42,7 @@ class FakeQuery implements Query {
     }
 
     if (data is Map<String, dynamic>) {
-      List<MapEntry<String, dynamic>> entries = data.entries.toList();
+      EntryList entries = data.entries.toList();
       entries = _applyQuery(entries);
       data = Map.fromEntries(entries);
     }
@@ -149,16 +151,14 @@ class FakeQuery implements Query {
     return path.split('/').where((p) => p.isNotEmpty).toList();
   }
 
-  List<MapEntry<String, dynamic>> _applyQuery(
-      List<MapEntry<String, dynamic>> entries) {
+  EntryList _applyQuery(EntryList entries) {
     if (_orderBy != null) {
       entries = _applyOrderBy(entries);
     }
     return entries;
   }
 
-  List<MapEntry<String, dynamic>> _applyOrderBy(
-      List<MapEntry<String, dynamic>> entries) {
+  EntryList _applyOrderBy(EntryList entries) {
     entries.sort((a, b) {
       return (a.value[_orderBy!] as Comparable).compareTo(b.value[_orderBy!]);
     });
