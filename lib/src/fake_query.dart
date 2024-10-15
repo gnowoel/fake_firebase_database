@@ -38,6 +38,12 @@ class FakeQuery implements Query {
       }
     }
 
+    if (data is Map<String, dynamic>) {
+      List<MapEntry<String, dynamic>> entries = data.entries.toList();
+      entries = _applyQuery(entries);
+      data = Map.fromEntries(entries);
+    }
+
     return FakeDataSnapshot(ref, data);
   }
 
@@ -140,5 +146,10 @@ class FakeQuery implements Query {
 
   List<String> _splitPath(String path) {
     return path.split('/').where((p) => p.isNotEmpty).toList();
+  }
+
+  List<MapEntry<String, dynamic>> _applyQuery(
+      List<MapEntry<String, dynamic>> entries) {
+    return entries;
   }
 }
