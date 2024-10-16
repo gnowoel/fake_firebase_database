@@ -115,8 +115,8 @@ class FakeQuery implements Query {
 
   @override
   Query orderByValue() {
-    // TODO: implement orderByValue
-    throw UnimplementedError();
+    _order = {'key': 'value', 'value': true};
+    return this;
   }
 
   @override
@@ -162,6 +162,7 @@ class FakeQuery implements Query {
     return switch (_order!['key']) {
       'child' => _applyOrderByChild(entries),
       'key' => _applyOrderByKey(entries),
+      'value' => _applyOrderByValue(entries),
       _ => entries,
     };
   }
@@ -188,6 +189,29 @@ class FakeQuery implements Query {
       final v2 = b.key;
 
       return v1.compareTo(v2);
+    });
+
+    return entries;
+  }
+
+  EntryList _applyOrderByValue(EntryList entries) {
+    entries.sort((a, b) {
+      final v1 = a.value;
+      final v2 = b.value;
+
+      if (v1 == null && v2 == null) return 0;
+      if (v1 == null) return -1;
+      if (v2 == null) return 1;
+
+      if (v1 is num && v2 is num) {
+        return v1.compareTo(v2);
+      } else if (v1 is String && v2 is String) {
+        return v1.compareTo(v2);
+      } else if (v1 is bool && v2 is bool) {
+        return v1 == v2 ? 0 : (v1 ? 1 : -1);
+      } else {
+        return v1.toString().compareTo(v2.toString());
+      }
     });
 
     return entries;

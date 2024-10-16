@@ -83,5 +83,48 @@ void main() {
         expect(children[2].key, 'c');
       });
     });
+
+    group('orderByValue()', () {
+      test('returns a list ordered by value', () async {
+        await database.ref('scores').set({
+          'player1': 100,
+          'player2': 50,
+          'player3': 150,
+        });
+
+        final query = database.ref('scores').orderByValue();
+        final snapshot = await query.get();
+        final children = snapshot.children.toList();
+
+        expect(children.length, 3);
+        expect(children[0].key, 'player2');
+        expect(children[0].value, 50);
+        expect(children[1].key, 'player1');
+        expect(children[1].value, 100);
+        expect(children[2].key, 'player3');
+        expect(children[2].value, 150);
+      });
+
+      test('works correctly for mixed value types', () async {
+        await database.ref('scores').set({
+          'player1': null,
+          'player2': true,
+          'player3': 'high',
+          'player4': 100,
+        });
+
+        final query = database.ref('scores').orderByValue();
+        final snapshot = await query.get();
+        final children = snapshot.children.toList();
+
+        expect(children.length, 3);
+        expect(children[0].key, 'player4');
+        expect(children[0].value, 100);
+        expect(children[1].key, 'player3');
+        expect(children[1].value, 'high');
+        expect(children[2].key, 'player2');
+        expect(children[2].value, true);
+      });
+    });
   });
 }
