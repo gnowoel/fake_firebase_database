@@ -159,13 +159,11 @@ class FakeQuery implements Query {
   }
 
   EntryList _applyOrder(EntryList entries) {
-    switch (_order!['key']) {
-      case 'child':
-        entries = _applyOrderByChild(entries);
-      case 'key':
-        entries = _applyOrderByKey(entries);
-    }
-    return entries;
+    return switch (_order!['key']) {
+      'child' => _applyOrderByChild(entries),
+      'key' => _applyOrderByKey(entries),
+      _ => entries,
+    };
   }
 
   EntryList _applyOrderByChild(EntryList entries) {
