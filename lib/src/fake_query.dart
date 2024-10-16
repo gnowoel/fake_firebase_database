@@ -65,8 +65,8 @@ class FakeQuery implements Query {
 
   @override
   Query limitToLast(int limit) {
-    // TODO: implement limitToLast
-    throw UnimplementedError();
+    _limit = {'key': 'toLast', 'value': limit};
+    return this;
   }
 
   @override
@@ -226,12 +226,20 @@ class FakeQuery implements Query {
   EntryList _applyLimit(EntryList entries) {
     return switch (_limit!['key']) {
       'toFirst' => _applyLimitToFirst(entries),
+      'toLast' => _applyLimitToLast(entries),
       _ => entries,
     };
   }
 
   EntryList _applyLimitToFirst(EntryList entries) {
-    final limit = _limit!['value'];
+    final limit = _limit!['value'] as int;
     return entries.take(limit).toList();
+  }
+
+  EntryList _applyLimitToLast(EntryList entries) {
+    final limit = _limit!['value'] as int;
+    return entries.length > limit
+        ? entries.sublist(entries.length - limit)
+        : entries;
   }
 }
