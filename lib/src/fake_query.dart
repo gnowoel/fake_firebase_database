@@ -103,8 +103,8 @@ class FakeQuery implements Query {
 
   @override
   Query orderByKey() {
-    // TODO: implement orderByKey
-    throw UnimplementedError();
+    _order = {'key': 'key', 'value': true};
+    return this;
   }
 
   @override
@@ -159,8 +159,11 @@ class FakeQuery implements Query {
   }
 
   EntryList _applyOrder(EntryList entries) {
-    if (_order!['key'] == 'child') {
-      entries = _applyOrderByChild(entries);
+    switch (_order!['key']) {
+      case 'child':
+        entries = _applyOrderByChild(entries);
+      case 'key':
+        entries = _applyOrderByKey(entries);
     }
     return entries;
   }
@@ -168,14 +171,25 @@ class FakeQuery implements Query {
   EntryList _applyOrderByChild(EntryList entries) {
     entries.sort((a, b) {
       final path = _order!['value'];
-      final value1 = a.value[path];
-      final value2 = b.value[path];
+      final v1 = a.value[path];
+      final v2 = b.value[path];
 
-      if (value1 == null && value2 == null) return 0;
-      if (value1 == null) return -1;
-      if (value2 == null) return 1;
+      if (v1 == null && v2 == null) return 0;
+      if (v1 == null) return -1;
+      if (v2 == null) return 1;
 
-      return (value1 as Comparable).compareTo(value2);
+      return (v1 as Comparable).compareTo(v2);
+    });
+
+    return entries;
+  }
+
+  EntryList _applyOrderByKey(EntryList entries) {
+    entries.sort((a, b) {
+      final v1 = a.key;
+      final v2 = b.key;
+
+      return v1.compareTo(v2);
     });
 
     return entries;

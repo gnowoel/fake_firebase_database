@@ -61,5 +61,27 @@ void main() {
         expect(children[2].child('name').value, 'Charlie');
       });
     });
+
+    group('orderByKey()', () {
+      setUp(() async {
+        final usersRef = database.ref('users');
+        await usersRef.set({
+          'c': {'name': 'Charlie'},
+          'a': {'name': 'Alice'},
+          'b': {'name': 'Bob'},
+        });
+      });
+
+      test('returns a list ordered by key', () async {
+        final query = database.ref('users').orderByKey();
+        final snapshot = await query.get();
+        final children = snapshot.children.toList();
+
+        expect(children.length, 3);
+        expect(children[0].key, 'a');
+        expect(children[1].key, 'b');
+        expect(children[2].key, 'c');
+      });
+    });
   });
 }
