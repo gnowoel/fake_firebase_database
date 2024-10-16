@@ -5,7 +5,7 @@ typedef EntryList = List<MapEntry<String, dynamic>>;
 class FakeQuery implements Query {
   final FakeFirebaseDatabase _database;
   final String? _path;
-  String? _orderBy;
+  Map<String, dynamic>? _order;
 
   FakeQuery(this._database, this._path);
 
@@ -97,7 +97,7 @@ class FakeQuery implements Query {
 
   @override
   Query orderByChild(String path) {
-    _orderBy = path;
+    _order = {'key': 'child', 'value': path};
     return this;
   }
 
@@ -152,22 +152,30 @@ class FakeQuery implements Query {
   }
 
   EntryList _applyQuery(EntryList entries) {
-    if (_orderBy != null) {
-      entries = _applyOrderBy(entries);
+    if (_order != null) {
+      entries = _applyOrder(entries);
     }
     return entries;
   }
 
-  EntryList _applyOrderBy(EntryList entries) {
+  EntryList _applyOrder(EntryList entries) {
+    if (_order!['key'] == 'child') {
+      entries = _applyOrderByChild(entries);
+    }
+    return entries;
+  }
+
+  EntryList _applyOrderByChild(EntryList entries) {
     entries.sort((a, b) {
-      final aValue = a.value[_orderBy!];
-      final bValue = b.value[_orderBy!];
+      final path = _order!['value'];
+      final value1 = a.value[path];
+      final value2 = b.value[path];
 
-      if (aValue == null && bValue == null) return 0;
-      if (aValue == null) return -1;
-      if (bValue == null) return 1;
+      if (value1 == null && value2 == null) return 0;
+      if (value1 == null) return -1;
+      if (value2 == null) return 1;
 
-      return (aValue as Comparable).compareTo(bValue);
+      return (value1 as Comparable).compareTo(value2);
     });
 
     return entries;
