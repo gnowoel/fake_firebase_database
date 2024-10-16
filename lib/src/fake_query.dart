@@ -6,6 +6,7 @@ class FakeQuery implements Query {
   final FakeFirebaseDatabase _database;
   final String? _path;
   Map<String, dynamic>? _order;
+  Map<String, dynamic>? _limit;
 
   FakeQuery(this._database, this._path);
 
@@ -58,8 +59,8 @@ class FakeQuery implements Query {
 
   @override
   Query limitToFirst(int limit) {
-    // TODO: implement limitToFirst
-    throw UnimplementedError();
+    _limit = {'key': 'toFirst', 'value': limit};
+    return this;
   }
 
   @override
@@ -155,6 +156,11 @@ class FakeQuery implements Query {
     if (_order != null) {
       entries = _applyOrder(entries);
     }
+
+    if (_limit != null) {
+      entries = _applyLimit(entries);
+    }
+
     return entries;
   }
 
@@ -215,5 +221,17 @@ class FakeQuery implements Query {
     });
 
     return entries;
+  }
+
+  EntryList _applyLimit(EntryList entries) {
+    return switch (_limit!['key']) {
+      'toFirst' => _applyLimitToFirst(entries),
+      _ => entries,
+    };
+  }
+
+  EntryList _applyLimitToFirst(EntryList entries) {
+    final limit = _limit!['value'];
+    return entries.take(limit).toList();
   }
 }
