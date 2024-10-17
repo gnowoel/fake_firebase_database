@@ -6,6 +6,7 @@ class FakeQuery implements Query {
   final FakeFirebaseDatabase _database;
   final String? _path;
   Map<String, dynamic>? _order;
+  Map<String, dynamic>? _startAt;
   Map<String, dynamic>? _limit;
 
   FakeQuery(this._database, this._path);
@@ -134,8 +135,8 @@ class FakeQuery implements Query {
 
   @override
   Query startAt(Object? value, {String? key}) {
-    // TODO: implement startAt
-    throw UnimplementedError();
+    _startAt = {'value': value, 'key': key};
+    return this;
   }
 
   List<String> get _pathParts {
@@ -155,6 +156,10 @@ class FakeQuery implements Query {
   EntryList _applyQuery(EntryList entries) {
     if (_order != null) {
       entries = _applyOrder(entries);
+    }
+
+    if (_startAt != null) {
+      entries = _applyStartAt(entries);
     }
 
     if (_limit != null) {
@@ -219,6 +224,43 @@ class FakeQuery implements Query {
         return v1.toString().compareTo(v2.toString());
       }
     });
+
+    return entries;
+  }
+
+  EntryList _applyStartAt(EntryList entries) {
+    final startAtValue = _startAt!['value'];
+    final startAtKey = _startAt!['key'];
+
+    if (_order == null) {
+      entries = _applyOrderByKey(entries);
+    }
+
+    if (_order!['key'] == 'key') {
+      entries = entries.where((entry) {
+        return entry.key.compareTo(startAtValue as String) >= 0;
+      }).toList();
+    }
+
+    if (_order!['key'] == 'value') {
+      entries = entries.where((entry) {
+        return (entry.value as Comparable).compareTo(startAtValue) >= 0;
+      }).toList();
+    }
+
+    if (_order!['key'] == 'child') {
+      entries = entries.where((entry) {
+        final childKey = _order!['value'];
+        final entryChildValue = entry.value[childKey];
+        return (entryChildValue as Comparable).compareTo(startAtValue) >= 0;
+      }).toList();
+    }
+
+    if (startAtKey != null) {
+      entries = entries.where((entry) {
+        return entry.key.compareTo(startAtKey) >= 0;
+      }).toList();
+    }
 
     return entries;
   }
