@@ -247,9 +247,10 @@ class FakeQuery implements Query {
 
     if (_order!['type'] == 'byChild') {
       entries = entries.where((entry) {
-        final childKey = _order!['params']['path'];
-        final entryChildValue = entry.value[childKey];
-        final c = _compareValues(entryChildValue, startValue);
+        final path = _order!['params']['path'];
+        final parts = splitPath(path);
+        final value = traverseValue(entry.value, parts);
+        final c = _compareValues(value, startValue);
         return inclusive ? c >= 0 : c > 0;
       }).toList();
     }

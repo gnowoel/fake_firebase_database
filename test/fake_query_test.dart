@@ -319,6 +319,29 @@ void main() {
         expect(children[2].child('name').value, 'Eve');
       });
 
+      test('works with orderByChild() with deep path', () async {
+        await database.ref('scores').set({
+          'player1': {
+            'info': {'score': 100},
+          },
+          'player2': {
+            'info': {'score': 50},
+          },
+          'player3': {
+            'info': {'score': 150},
+          },
+        });
+
+        final query =
+            database.ref('scores').orderByChild('info/score').startAt(100);
+        final snapshot = await query.get();
+        final children = snapshot.children.toList();
+
+        expect(children.length, 2);
+        expect(children[0].child('info/score').value, 100);
+        expect(children[1].child('info/score').value, 150);
+      });
+
       test('works with orderByKey()', () async {
         final query = database.ref('users').orderByKey().startAt('3');
         final snapshot = await query.get();
@@ -389,6 +412,28 @@ void main() {
         expect(children.length, 2);
         expect(children[0].child('name').value, 'David');
         expect(children[1].child('name').value, 'Eve');
+      });
+
+      test('works with orderByChild() with deep path', () async {
+        await database.ref('scores').set({
+          'player1': {
+            'info': {'score': 100},
+          },
+          'player2': {
+            'info': {'score': 50},
+          },
+          'player3': {
+            'info': {'score': 150},
+          },
+        });
+
+        final query =
+            database.ref('scores').orderByChild('info/score').startAfter(100);
+        final snapshot = await query.get();
+        final children = snapshot.children.toList();
+
+        expect(children.length, 1);
+        expect(children[0].child('info/score').value, 150);
       });
 
       test('works with orderByKey()', () async {
