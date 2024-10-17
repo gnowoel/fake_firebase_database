@@ -99,13 +99,16 @@ class FakeQuery implements Query {
 
   @override
   Query orderByChild(String path) {
-    _order = {'key': 'byChild', 'value': path};
+    _order = {
+      'type': 'byChild',
+      'params': {'path': path},
+    };
     return this;
   }
 
   @override
   Query orderByKey() {
-    _order = {'key': 'byKey', 'value': true};
+    _order = {'type': 'byKey', 'params': null};
     return this;
   }
 
@@ -117,7 +120,7 @@ class FakeQuery implements Query {
 
   @override
   Query orderByValue() {
-    _order = {'key': 'byValue', 'value': true};
+    _order = {'type': 'byValue', 'params': null};
     return this;
   }
 
@@ -176,7 +179,7 @@ class FakeQuery implements Query {
   }
 
   EntryList _applyOrder(EntryList entries) {
-    return switch (_order!['key']) {
+    return switch (_order!['type']) {
       'byChild' => _applyOrderByChild(entries),
       'byKey' => _applyOrderByKey(entries),
       'byValue' => _applyOrderByValue(entries),
@@ -186,7 +189,7 @@ class FakeQuery implements Query {
 
   EntryList _applyOrderByChild(EntryList entries) {
     entries.sort((a, b) {
-      final path = _order!['value'];
+      final path = _order!['params']['path'];
       final v1 = a.value[path];
       final v2 = b.value[path];
 
@@ -250,21 +253,21 @@ class FakeQuery implements Query {
       entries = _applyOrderByKey(entries);
     }
 
-    if (_order!['key'] == 'byKey') {
+    if (_order!['type'] == 'byKey') {
       entries = entries.where((entry) {
         return entry.key.compareTo(startValue as String) >= 0;
       }).toList();
     }
 
-    if (_order!['key'] == 'byValue') {
+    if (_order!['type'] == 'byValue') {
       entries = entries.where((entry) {
         return (entry.value as Comparable).compareTo(startValue) >= 0;
       }).toList();
     }
 
-    if (_order!['key'] == 'byChild') {
+    if (_order!['type'] == 'byChild') {
       entries = entries.where((entry) {
-        final childKey = _order!['value'];
+        final childKey = _order!['params']['path'];
         final entryChildValue = entry.value[childKey];
         return (entryChildValue as Comparable).compareTo(startValue) >= 0;
       }).toList();
@@ -287,21 +290,21 @@ class FakeQuery implements Query {
       entries = _applyOrderByKey(entries);
     }
 
-    if (_order!['key'] == 'byKey') {
+    if (_order!['type'] == 'byKey') {
       entries = entries.where((entry) {
         return entry.key.compareTo(startValue as String) > 0;
       }).toList();
     }
 
-    if (_order!['key'] == 'byValue') {
+    if (_order!['type'] == 'byValue') {
       entries = entries.where((entry) {
         return (entry.value as Comparable).compareTo(startValue) > 0;
       }).toList();
     }
 
-    if (_order!['key'] == 'byChild') {
+    if (_order!['type'] == 'byChild') {
       entries = entries.where((entry) {
-        final childKey = _order!['value'];
+        final childKey = _order!['params']['path'];
         final entryChildValue = entry.value[childKey];
         return (entryChildValue as Comparable).compareTo(startValue) > 0;
       }).toList();
