@@ -60,6 +60,29 @@ void main() {
         expect(children[1].child('name').value, 'Alice');
         expect(children[2].child('name').value, 'Charlie');
       });
+
+      test('returns a list ordered by a deeply nested child', () async {
+        await database.ref('scores').set({
+          'player1': {
+            'info': {'score': 100},
+          },
+          'player2': {
+            'info': {'score': 50},
+          },
+          'player3': {
+            'info': {'score': 150},
+          },
+        });
+
+        final query = database.ref('scores').orderByChild('info/score');
+        final snapshot = await query.get();
+        final children = snapshot.children.toList();
+
+        expect(children.length, 3);
+        expect(children[0].child('info/score').value, 50);
+        expect(children[1].child('info/score').value, 100);
+        expect(children[2].child('info/score').value, 150);
+      });
     });
 
     group('orderByKey()', () {

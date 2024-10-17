@@ -164,6 +164,18 @@ class FakeQuery implements Query {
     return '/$relativePath';
   }
 
+  Object? _traverseValue(Object? value, List<String> parts) {
+    for (final part in parts) {
+      if (value is Map && value.containsKey(part)) {
+        value = value[part];
+      } else {
+        value = null;
+        break;
+      }
+    }
+    return value;
+  }
+
   List<String> _splitPath(String path) {
     return path.split('/').where((p) => p.isNotEmpty).toList();
   }
@@ -196,8 +208,9 @@ class FakeQuery implements Query {
   EntryList _applyOrderByChild(EntryList entries) {
     entries.sort((a, b) {
       final path = _order!['params']['path'];
-      final v1 = a.value[path];
-      final v2 = b.value[path];
+      final parts = _splitPath(path);
+      final v1 = _traverseValue(a.value, parts);
+      final v2 = _traverseValue(b.value, parts);
 
       return _compareValues(v1, v2);
     });
