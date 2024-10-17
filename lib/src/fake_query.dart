@@ -199,11 +199,7 @@ class FakeQuery implements Query {
       final v1 = a.value[path];
       final v2 = b.value[path];
 
-      if (v1 == null && v2 == null) return 0;
-      if (v1 == null) return -1;
-      if (v2 == null) return 1;
-
-      return (v1 as Comparable).compareTo(v2);
+      return _compareValues(v1, v2);
     });
 
     return entries;
@@ -214,7 +210,7 @@ class FakeQuery implements Query {
       final v1 = a.key;
       final v2 = b.key;
 
-      return v1.compareTo(v2);
+      return _compareValues(v1, v2);
     });
 
     return entries;
@@ -225,19 +221,7 @@ class FakeQuery implements Query {
       final v1 = a.value;
       final v2 = b.value;
 
-      if (v1 == null && v2 == null) return 0;
-      if (v1 == null) return -1;
-      if (v2 == null) return 1;
-
-      if (v1 is num && v2 is num) {
-        return v1.compareTo(v2);
-      } else if (v1 is String && v2 is String) {
-        return v1.compareTo(v2);
-      } else if (v1 is bool && v2 is bool) {
-        return v1 == v2 ? 0 : (v1 ? 1 : -1);
-      } else {
-        return v1.toString().compareTo(v2.toString());
-      }
+      return _compareValues(v1, v2);
     });
 
     return entries;
@@ -317,5 +301,33 @@ class FakeQuery implements Query {
   EntryList _applyLimitToLast(EntryList entries) {
     final limit = _limit!['params']['limit'] as int;
     return entries.reversed.take(limit).toList().reversed.toList();
+  }
+
+  int _compareValues(Object? v1, Object? v2) {
+    if (v1 == null && v2 == null) return 0;
+    if (v1 == null) return -1;
+    if (v2 == null) return 1;
+
+    if (v1 is num && v2 is num) {
+      return v1.compareTo(v2);
+    }
+
+    if (v1 is String && v2 is String) {
+      return v1.compareTo(v2);
+    }
+
+    if (v1 is bool && v2 is bool) {
+      return v1 == v2 ? 0 : (v1 ? 1 : -1);
+    }
+
+    if (v1 is Comparable && v2 is Comparable) {
+      try {
+        return v1.compareTo(v2);
+      } catch (e) {
+        // Ignore
+      }
+    }
+
+    return v1.toString().compareTo(v2.toString());
   }
 }
