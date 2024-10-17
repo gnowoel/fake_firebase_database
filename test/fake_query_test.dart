@@ -345,5 +345,74 @@ void main() {
         expect(children.length, 0);
       });
     });
+
+    group('startAfter()', () {
+      setUp(() async {
+        final usersRef = database.ref('users');
+        await usersRef.set({
+          '1': {'name': 'Alice', 'age': 25},
+          '2': {'name': 'Bob', 'age': 30},
+          '3': {'name': 'Charlie', 'age': 35},
+          '4': {'name': 'David', 'age': 40},
+          '5': {'name': 'Eve', 'age': 45},
+        });
+      });
+
+      test('works with orderByChild()', () async {
+        final query = database.ref('users').orderByChild('age').startAfter(35);
+        final snapshot = await query.get();
+        final children = snapshot.children.toList();
+
+        expect(children.length, 2);
+        expect(children[0].child('name').value, 'David');
+        expect(children[1].child('name').value, 'Eve');
+      });
+
+      test('works with orderByKey()', () async {
+        final query = database.ref('users').orderByKey().startAfter('3');
+        final snapshot = await query.get();
+        final children = snapshot.children.toList();
+
+        expect(children.length, 2);
+        expect(children[0].key, '4');
+        expect(children[1].key, '5');
+      });
+
+      test('works with orderByValue()', () async {
+        await database.ref('scores').set({
+          'player1': 50,
+          'player2': 100,
+          'player3': 150,
+          'player4': 200,
+        });
+
+        final query = database.ref('scores').orderByValue().startAfter(150);
+        final snapshot = await query.get();
+        final children = snapshot.children.toList();
+
+        expect(children.length, 1);
+        expect(children[0].key, 'player4');
+        expect(children[0].value, 200);
+      });
+
+      test('works with startAfter(value, key)', () async {
+        final query =
+            database.ref('users').orderByChild('age').startAfter(35, key: '3');
+        final snapshot = await query.get();
+        final children = snapshot.children.toList();
+
+        expect(children.length, 2);
+        expect(children[0].child('name').value, 'David');
+        expect(children[1].child('name').value, 'Eve');
+      });
+
+      test('returns empty result if no matching data', () async {
+        final query = database.ref('users').orderByChild('age').startAfter(50);
+        final snapshot = await query.get();
+        final children = snapshot.children.toList();
+
+        expect(children.length, 0);
+      });
+    });
   });
 }

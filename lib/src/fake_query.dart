@@ -7,6 +7,7 @@ class FakeQuery implements Query {
   final String? _path;
   Map<String, dynamic>? _order;
   Map<String, dynamic>? _startAt;
+  Map<String, dynamic>? _startAfter;
   Map<String, dynamic>? _limit;
 
   FakeQuery(this._database, this._path);
@@ -129,8 +130,8 @@ class FakeQuery implements Query {
 
   @override
   Query startAfter(Object? value, {String? key}) {
-    // TODO: implement startAfter
-    throw UnimplementedError();
+    _startAfter = {'value': value, 'key': key};
+    return this;
   }
 
   @override
@@ -160,6 +161,10 @@ class FakeQuery implements Query {
 
     if (_startAt != null) {
       entries = _applyStartAt(entries);
+    }
+
+    if (_startAfter != null) {
+      entries = _applyStartAfter(entries);
     }
 
     if (_limit != null) {
@@ -259,6 +264,43 @@ class FakeQuery implements Query {
     if (startAtKey != null) {
       entries = entries.where((entry) {
         return entry.key.compareTo(startAtKey) >= 0;
+      }).toList();
+    }
+
+    return entries;
+  }
+
+  EntryList _applyStartAfter(EntryList entries) {
+    final startAfterValue = _startAfter!['value'];
+    final startAfterKey = _startAfter!['key'];
+
+    if (_order == null) {
+      entries = _applyOrderByKey(entries);
+    }
+
+    if (_order!['key'] == 'byKey') {
+      entries = entries.where((entry) {
+        return entry.key.compareTo(startAfterValue as String) > 0;
+      }).toList();
+    }
+
+    if (_order!['key'] == 'byValue') {
+      entries = entries.where((entry) {
+        return (entry.value as Comparable).compareTo(startAfterValue) > 0;
+      }).toList();
+    }
+
+    if (_order!['key'] == 'byChild') {
+      entries = entries.where((entry) {
+        final childKey = _order!['value'];
+        final entryChildValue = entry.value[childKey];
+        return (entryChildValue as Comparable).compareTo(startAfterValue) > 0;
+      }).toList();
+    }
+
+    if (startAfterKey != null) {
+      entries = entries.where((entry) {
+        return entry.key.compareTo(startAfterKey) > 0;
       }).toList();
     }
 
