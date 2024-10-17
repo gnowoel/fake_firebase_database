@@ -34,14 +34,7 @@ class FakeQuery implements Query {
     final parts = _pathParts;
     Object? data = _database._store;
 
-    for (final part in parts) {
-      if (data is Map && data.containsKey(part)) {
-        data = data[part];
-      } else {
-        data = null;
-        break;
-      }
-    }
+    data = _traverseValue(data, parts);
 
     if (data is Map<String, dynamic>) {
       EntryList entries = data.entries.toList();
@@ -166,7 +159,7 @@ class FakeQuery implements Query {
 
   Object? _traverseValue(Object? value, List<String> parts) {
     for (final part in parts) {
-      if (value is Map && value.containsKey(part)) {
+      if (value is Map<String, dynamic> && value.containsKey(part)) {
         value = value[part];
       } else {
         value = null;
