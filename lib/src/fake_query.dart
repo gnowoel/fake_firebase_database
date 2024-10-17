@@ -253,15 +253,15 @@ class FakeQuery implements Query {
 
     if (_order!['type'] == 'byKey') {
       entries = entries.where((entry) {
-        final comparison = entry.key.compareTo(startValue as String);
-        return inclusive ? comparison >= 0 : comparison > 0;
+        final c = _compareValues(entry.key, startValue);
+        return inclusive ? c >= 0 : c > 0;
       }).toList();
     }
 
     if (_order!['type'] == 'byValue') {
       entries = entries.where((entry) {
-        final comparison = (entry.value as Comparable).compareTo(startValue);
-        return inclusive ? comparison >= 0 : comparison > 0;
+        final c = _compareValues(entry.value, startValue);
+        return inclusive ? c >= 0 : c > 0;
       }).toList();
     }
 
@@ -269,16 +269,15 @@ class FakeQuery implements Query {
       entries = entries.where((entry) {
         final childKey = _order!['params']['path'];
         final entryChildValue = entry.value[childKey];
-        final comparison =
-            (entryChildValue as Comparable).compareTo(startValue);
-        return inclusive ? comparison >= 0 : comparison > 0;
+        final c = _compareValues(entryChildValue, startValue);
+        return inclusive ? c >= 0 : c > 0;
       }).toList();
     }
 
     if (startKey != null) {
       entries = entries.where((entry) {
-        final comparison = entry.key.compareTo(startKey);
-        return inclusive ? comparison >= 0 : comparison > 0;
+        final c = _compareValues(entry.key, startKey);
+        return inclusive ? c >= 0 : c > 0;
       }).toList();
     }
 
