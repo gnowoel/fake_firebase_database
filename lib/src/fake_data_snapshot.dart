@@ -8,10 +8,10 @@ class FakeDataSnapshot implements DataSnapshot {
 
   @override
   DataSnapshot child(String path) {
-    final parts = _splitPath(path);
+    final parts = splitPath(path);
     Object? data = _value;
 
-    data = _traverseValue(data, parts);
+    data = traverseValue(data, parts);
 
     return FakeDataSnapshot(_ref.child(path), data);
   }
@@ -46,20 +46,4 @@ class FakeDataSnapshot implements DataSnapshot {
 
   @override
   Object? get value => _value;
-
-  List<String> _splitPath(String path) {
-    return path.split('/').where((p) => p.isNotEmpty).toList();
-  }
-
-  Object? _traverseValue(Object? value, List<String> parts) {
-    for (final part in parts) {
-      if (value is Map<String, dynamic> && value.containsKey(part)) {
-        value = value[part];
-      } else {
-        value = null;
-        break;
-      }
-    }
-    return value;
-  }
 }

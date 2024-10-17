@@ -34,7 +34,7 @@ class FakeQuery implements Query {
     final parts = _pathParts;
     Object? data = _database._store;
 
-    data = _traverseValue(data, parts);
+    data = traverseValue(data, parts);
 
     if (data is Map<String, dynamic>) {
       EntryList entries = data.entries.toList();
@@ -175,9 +175,9 @@ class FakeQuery implements Query {
   EntryList _applyOrderByChild(EntryList entries) {
     entries.sort((a, b) {
       final path = _order!['params']['path'];
-      final parts = _splitPath(path);
-      final v1 = _traverseValue(a.value, parts);
-      final v2 = _traverseValue(b.value, parts);
+      final parts = splitPath(path);
+      final v1 = traverseValue(a.value, parts);
+      final v2 = traverseValue(b.value, parts);
 
       return _compareValues(v1, v2);
     });
@@ -311,28 +311,12 @@ class FakeQuery implements Query {
   }
 
   List<String> get _pathParts {
-    final parts = _splitPath(path);
+    final parts = splitPath(path);
     return parts..insert(0, '/');
   }
 
   String _normalizePath(String? path) {
-    final relativePath = _splitPath(path ?? '').join('/');
+    final relativePath = splitPath(path ?? '').join('/');
     return '/$relativePath';
-  }
-
-  List<String> _splitPath(String path) {
-    return path.split('/').where((p) => p.isNotEmpty).toList();
-  }
-
-  Object? _traverseValue(Object? value, List<String> parts) {
-    for (final part in parts) {
-      if (value is Map<String, dynamic> && value.containsKey(part)) {
-        value = value[part];
-      } else {
-        value = null;
-        break;
-      }
-    }
-    return value;
   }
 }
