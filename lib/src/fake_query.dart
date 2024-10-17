@@ -238,8 +238,6 @@ class FakeQuery implements Query {
 
   EntryList _applyLimitToLast(EntryList entries) {
     final limit = _limit!['value'] as int;
-    return entries.length > limit
-        ? entries.sublist(entries.length - limit)
-        : entries;
+    return entries.reversed.take(limit).toList().reversed.toList();
   }
 }
