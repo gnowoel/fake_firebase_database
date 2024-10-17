@@ -6,8 +6,7 @@ class FakeQuery implements Query {
   final FakeFirebaseDatabase _database;
   final String? _path;
   Map<String, dynamic>? _order;
-  Map<String, dynamic>? _startAt;
-  Map<String, dynamic>? _startAfter;
+  Map<String, dynamic>? _start;
   Map<String, dynamic>? _limit;
 
   FakeQuery(this._database, this._path);
@@ -130,13 +129,19 @@ class FakeQuery implements Query {
 
   @override
   Query startAfter(Object? value, {String? key}) {
-    _startAfter = {'value': value, 'key': key};
+    _start = {
+      'type': 'after',
+      'params': {'value': value, 'key': key}
+    };
     return this;
   }
 
   @override
   Query startAt(Object? value, {String? key}) {
-    _startAt = {'value': value, 'key': key};
+    _start = {
+      'type': 'at',
+      'params': {'value': value, 'key': key}
+    };
     return this;
   }
 
@@ -159,12 +164,8 @@ class FakeQuery implements Query {
       entries = _applyOrder(entries);
     }
 
-    if (_startAt != null) {
-      entries = _applyStartAt(entries);
-    }
-
-    if (_startAfter != null) {
-      entries = _applyStartAfter(entries);
+    if (_start != null) {
+      entries = _applyStart(entries);
     }
 
     if (_limit != null) {
@@ -233,9 +234,17 @@ class FakeQuery implements Query {
     return entries;
   }
 
+  EntryList _applyStart(EntryList entries) {
+    return switch (_start!['type']) {
+      'at' => _applyStartAt(entries),
+      'after' => _applyStartAfter(entries),
+      _ => entries,
+    };
+  }
+
   EntryList _applyStartAt(EntryList entries) {
-    final startAtValue = _startAt!['value'];
-    final startAtKey = _startAt!['key'];
+    final startValue = _start!['params']['value'];
+    final startKey = _start!['params']['key'];
 
     if (_order == null) {
       entries = _applyOrderByKey(entries);
@@ -243,13 +252,13 @@ class FakeQuery implements Query {
 
     if (_order!['key'] == 'byKey') {
       entries = entries.where((entry) {
-        return entry.key.compareTo(startAtValue as String) >= 0;
+        return entry.key.compareTo(startValue as String) >= 0;
       }).toList();
     }
 
     if (_order!['key'] == 'byValue') {
       entries = entries.where((entry) {
-        return (entry.value as Comparable).compareTo(startAtValue) >= 0;
+        return (entry.value as Comparable).compareTo(startValue) >= 0;
       }).toList();
     }
 
@@ -257,13 +266,13 @@ class FakeQuery implements Query {
       entries = entries.where((entry) {
         final childKey = _order!['value'];
         final entryChildValue = entry.value[childKey];
-        return (entryChildValue as Comparable).compareTo(startAtValue) >= 0;
+        return (entryChildValue as Comparable).compareTo(startValue) >= 0;
       }).toList();
     }
 
-    if (startAtKey != null) {
+    if (startKey != null) {
       entries = entries.where((entry) {
-        return entry.key.compareTo(startAtKey) >= 0;
+        return entry.key.compareTo(startKey) >= 0;
       }).toList();
     }
 
@@ -271,8 +280,8 @@ class FakeQuery implements Query {
   }
 
   EntryList _applyStartAfter(EntryList entries) {
-    final startAfterValue = _startAfter!['value'];
-    final startAfterKey = _startAfter!['key'];
+    final startValue = _start!['params']['value'];
+    final startKey = _start!['params']['key'];
 
     if (_order == null) {
       entries = _applyOrderByKey(entries);
@@ -280,13 +289,13 @@ class FakeQuery implements Query {
 
     if (_order!['key'] == 'byKey') {
       entries = entries.where((entry) {
-        return entry.key.compareTo(startAfterValue as String) > 0;
+        return entry.key.compareTo(startValue as String) > 0;
       }).toList();
     }
 
     if (_order!['key'] == 'byValue') {
       entries = entries.where((entry) {
-        return (entry.value as Comparable).compareTo(startAfterValue) > 0;
+        return (entry.value as Comparable).compareTo(startValue) > 0;
       }).toList();
     }
 
@@ -294,13 +303,13 @@ class FakeQuery implements Query {
       entries = entries.where((entry) {
         final childKey = _order!['value'];
         final entryChildValue = entry.value[childKey];
-        return (entryChildValue as Comparable).compareTo(startAfterValue) > 0;
+        return (entryChildValue as Comparable).compareTo(startValue) > 0;
       }).toList();
     }
 
-    if (startAfterKey != null) {
+    if (startKey != null) {
       entries = entries.where((entry) {
-        return entry.key.compareTo(startAfterKey) > 0;
+        return entry.key.compareTo(startKey) > 0;
       }).toList();
     }
 
