@@ -60,13 +60,19 @@ class FakeQuery implements Query {
 
   @override
   Query limitToFirst(int limit) {
-    _limit = {'key': 'toFirst', 'value': limit};
+    _limit = {
+      'type': 'toFirst',
+      'params': {'limit': limit},
+    };
     return this;
   }
 
   @override
   Query limitToLast(int limit) {
-    _limit = {'key': 'toLast', 'value': limit};
+    _limit = {
+      'type': 'toLast',
+      'params': {'limit': limit},
+    };
     return this;
   }
 
@@ -134,7 +140,7 @@ class FakeQuery implements Query {
   Query startAfter(Object? value, {String? key}) {
     _start = {
       'type': 'after',
-      'params': {'value': value, 'key': key}
+      'params': {'value': value, 'key': key},
     };
     return this;
   }
@@ -143,7 +149,7 @@ class FakeQuery implements Query {
   Query startAt(Object? value, {String? key}) {
     _start = {
       'type': 'at',
-      'params': {'value': value, 'key': key}
+      'params': {'value': value, 'key': key},
     };
     return this;
   }
@@ -320,7 +326,7 @@ class FakeQuery implements Query {
   }
 
   EntryList _applyLimit(EntryList entries) {
-    return switch (_limit!['key']) {
+    return switch (_limit!['type']) {
       'toFirst' => _applyLimitToFirst(entries),
       'toLast' => _applyLimitToLast(entries),
       _ => entries,
@@ -328,12 +334,12 @@ class FakeQuery implements Query {
   }
 
   EntryList _applyLimitToFirst(EntryList entries) {
-    final limit = _limit!['value'] as int;
+    final limit = _limit!['params']['limit'] as int;
     return entries.take(limit).toList();
   }
 
   EntryList _applyLimitToLast(EntryList entries) {
-    final limit = _limit!['value'] as int;
+    final limit = _limit!['params']['limit'] as int;
     return entries.reversed.take(limit).toList().reversed.toList();
   }
 }
