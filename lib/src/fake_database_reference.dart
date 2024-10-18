@@ -63,6 +63,9 @@ class FakeDatabaseReference extends FakeQuery implements DatabaseReference {
     _cleanDown(value);
     data[lastPart] = value;
     _cleanUp();
+
+    final snapshot = await get();
+    _triggerValue(snapshot);
   }
 
   @override

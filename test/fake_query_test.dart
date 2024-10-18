@@ -1,3 +1,4 @@
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:fake_firebase_database/fake_firebase_database.dart';
@@ -769,6 +770,25 @@ void main() {
         final children = snapshot.children.toList();
 
         expect(children.length, 5);
+      });
+    });
+
+    group('Real-time event streams', () {
+      test('onValue emits events when data changes', () async {
+        final ref = database.ref('users');
+
+        expectLater(
+          ref.onValue,
+          emitsInOrder([
+            predicate<DatabaseEvent>(
+                (e) => (e.snapshot.value as Map).length == 1),
+            predicate<DatabaseEvent>(
+                (e) => (e.snapshot.value as Map).length == 2),
+          ]),
+        );
+
+        await ref.set({'name1': 'Alice'});
+        await ref.set({'name1': 'Alice', 'name2': 'Bob'});
       });
     });
   });
