@@ -284,6 +284,7 @@ class FakeQuery implements Query {
     final k = params['key'];
     final d = direction;
     final i = inclusive;
+    final ki = k != null || i;
 
     if (_order == null) {
       entries = _applyOrderByKey(entries);
@@ -291,13 +292,13 @@ class FakeQuery implements Query {
 
     if (_order!['type'] == 'byKey') {
       entries = entries.where((entry) {
-        return _compareBounds(entry.key, v, d, i);
+        return _compareBounds(entry.key, v, d, ki);
       }).toList();
     }
 
     if (_order!['type'] == 'byValue') {
       entries = entries.where((entry) {
-        return _compareBounds(entry.value, v, d, i);
+        return _compareBounds(entry.value, v, d, ki);
       }).toList();
     }
 
@@ -306,7 +307,7 @@ class FakeQuery implements Query {
         final path = _order!['params']['path'];
         final parts = splitPath(path);
         final value = traverseValue(entry.value, parts);
-        return _compareBounds(value, v, d, i);
+        return _compareBounds(value, v, d, ki);
       }).toList();
     }
 
