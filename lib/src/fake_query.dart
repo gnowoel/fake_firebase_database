@@ -7,20 +7,27 @@ class FakeQuery implements Query {
   final String? _path;
   Map<String, dynamic>? _order;
   Map<String, dynamic>? _start;
+  Map<String, dynamic>? _end;
   Map<String, dynamic>? _limit;
 
   FakeQuery(this._database, this._path);
 
   @override
   Query endAt(Object? value, {String? key}) {
-    // TODO: implement endAt
-    throw UnimplementedError();
+    _end = {
+      'type': 'at',
+      'params': {'value': value, 'key': key},
+    };
+    return this;
   }
 
   @override
   Query endBefore(Object? value, {String? key}) {
-    // TODO: implement endBefore
-    throw UnimplementedError();
+    _end = {
+      'type': 'before',
+      'params': {'value': value, 'key': key},
+    };
+    return this;
   }
 
   @override
@@ -156,6 +163,10 @@ class FakeQuery implements Query {
       entries = _applyStart(entries);
     }
 
+    if (_end != null) {
+      entries = _applyEnd(entries);
+    }
+
     if (_limit != null) {
       entries = _applyLimit(entries);
     }
@@ -259,6 +270,64 @@ class FakeQuery implements Query {
       entries = entries.where((entry) {
         final c = _compareValues(entry.key, startKey);
         return inclusive ? c >= 0 : c > 0;
+      }).toList();
+    }
+
+    return entries;
+  }
+
+  EntryList _applyEnd(EntryList entries) {
+    return switch (_end!['type']) {
+      'at' => _applyEndAt(entries),
+      'before' => _applyEndBefore(entries),
+      _ => entries,
+    };
+  }
+
+  EntryList _applyEndAt(EntryList entries) {
+    return _applyEndCommon(entries, inclusive: true);
+  }
+
+  EntryList _applyEndBefore(EntryList entries) {
+    return _applyEndCommon(entries, inclusive: false);
+  }
+
+  EntryList _applyEndCommon(EntryList entries, {required bool inclusive}) {
+    final endValue = _end!['params']['value'];
+    final endKey = _end!['params']['key'];
+
+    if (_order == null) {
+      entries = _applyOrderByKey(entries);
+    }
+
+    if (_order!['type'] == 'byKey') {
+      entries = entries.where((entry) {
+        final c = _compareValues(entry.key, endValue);
+        return inclusive ? c <= 0 : c < 0;
+      }).toList();
+    }
+
+    if (_order!['type'] == 'byValue') {
+      entries = entries.where((entry) {
+        final c = _compareValues(entry.value, endValue);
+        return inclusive ? c <= 0 : c < 0;
+      }).toList();
+    }
+
+    if (_order!['type'] == 'byChild') {
+      entries = entries.where((entry) {
+        final path = _order!['params']['path'];
+        final parts = splitPath(path);
+        final value = traverseValue(entry.value, parts);
+        final c = _compareValues(value, endValue);
+        return inclusive ? c <= 0 : c < 0;
+      }).toList();
+    }
+
+    if (endKey != null) {
+      entries = entries.where((entry) {
+        final c = _compareValues(entry.key, endKey);
+        return inclusive ? c <= 0 : c < 0;
       }).toList();
     }
 

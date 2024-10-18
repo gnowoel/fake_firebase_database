@@ -337,6 +337,53 @@ void main() {
       });
     });
 
+    group('endAt()', () {
+      setUp(() async {
+        final usersRef = database.ref('users');
+        await usersRef.set({
+          '1': {'name': 'Alice', 'age': 45},
+          '2': {'name': 'Bob', 'age': 40},
+          '3': {'name': 'Charlie', 'age': 35},
+          '4': {'name': 'David', 'age': 30},
+          '5': {'name': 'Eve', 'age': 25},
+        });
+      });
+
+      test('works with orderByChild()', () async {
+        final query = database.ref('users').orderByChild('age').endAt(35);
+        final snapshot = await query.get();
+        final children = snapshot.children.toList();
+
+        expect(children.length, 3);
+        expect(children[0].child('name').value, 'Eve');
+        expect(children[1].child('name').value, 'David');
+        expect(children[2].child('name').value, 'Charlie');
+      });
+    });
+
+    group('endBefore()', () {
+      setUp(() async {
+        final usersRef = database.ref('users');
+        await usersRef.set({
+          '1': {'name': 'Alice', 'age': 45},
+          '2': {'name': 'Bob', 'age': 40},
+          '3': {'name': 'Charlie', 'age': 35},
+          '4': {'name': 'David', 'age': 30},
+          '5': {'name': 'Eve', 'age': 25},
+        });
+      });
+
+      test('works with orderByChild()', () async {
+        final query = database.ref('users').orderByChild('age').endBefore(35);
+        final snapshot = await query.get();
+        final children = snapshot.children.toList();
+
+        expect(children.length, 2);
+        expect(children[0].child('name').value, 'Eve');
+        expect(children[1].child('name').value, 'David');
+      });
+    });
+
     group('limitToFirst()', () {
       setUp(() async {
         final usersRef = database.ref('users');
