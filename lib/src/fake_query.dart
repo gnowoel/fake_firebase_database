@@ -5,12 +5,23 @@ typedef EntryList = List<MapEntry<String, dynamic>>;
 class FakeQuery implements Query {
   final FakeFirebaseDatabase _database;
   final String? _path;
+
   Map<String, dynamic>? _order;
   Map<String, dynamic>? _start;
   Map<String, dynamic>? _end;
   Map<String, dynamic>? _limit;
 
+  final _childAddedController = _createStreamController();
+  final _childChangedController = _createStreamController();
+  final _childMovedController = _createStreamController();
+  final _childRemovedController = _createStreamController();
+  final _valueController = _createStreamController();
+
   FakeQuery(this._database, this._path);
+
+  static StreamController<DatabaseEvent> _createStreamController() {
+    return StreamController<DatabaseEvent>.broadcast();
+  }
 
   @override
   Query endAt(Object? value, {String? key}) {
@@ -76,24 +87,49 @@ class FakeQuery implements Query {
   }
 
   @override
-  // TODO: implement onChildAdded
-  Stream<DatabaseEvent> get onChildAdded => throw UnimplementedError();
+  Stream<DatabaseEvent> get onChildAdded => _childAddedController.stream;
 
   @override
-  // TODO: implement onChildChanged
-  Stream<DatabaseEvent> get onChildChanged => throw UnimplementedError();
+  Stream<DatabaseEvent> get onChildChanged => _childChangedController.stream;
 
   @override
-  // TODO: implement onChildMoved
-  Stream<DatabaseEvent> get onChildMoved => throw UnimplementedError();
+  Stream<DatabaseEvent> get onChildMoved => _childMovedController.stream;
 
   @override
-  // TODO: implement onChildRemoved
-  Stream<DatabaseEvent> get onChildRemoved => throw UnimplementedError();
+  Stream<DatabaseEvent> get onChildRemoved => _childRemovedController.stream;
 
   @override
-  // TODO: implement onValue
-  Stream<DatabaseEvent> get onValue => throw UnimplementedError();
+  Stream<DatabaseEvent> get onValue => _valueController.stream;
+
+  void _triggerChildAdded(DataSnapshot snapshot, String? previousChildKey) {
+    _childAddedController.add(
+      FakeDatabaseEvent.childAdded(snapshot, previousChildKey),
+    );
+  }
+
+  void _triggerChildChanged(DataSnapshot snapshot, String? previousChildKey) {
+    _childChangedController.add(
+      FakeDatabaseEvent.childChanged(snapshot, previousChildKey),
+    );
+  }
+
+  void _triggerChildMoved(DataSnapshot snapshot, String? previousChildKey) {
+    _childMovedController.add(
+      FakeDatabaseEvent.childMoved(snapshot, previousChildKey),
+    );
+  }
+
+  void _triggerChildRemoved(DataSnapshot snapshot) {
+    _childRemovedController.add(
+      FakeDatabaseEvent.childRemoved(snapshot),
+    );
+  }
+
+  void _triggerValue(DataSnapshot snapshot) {
+    _valueController.add(
+      FakeDatabaseEvent.value(snapshot),
+    );
+  }
 
   @override
   Future<DatabaseEvent> once(
