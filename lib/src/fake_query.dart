@@ -227,53 +227,23 @@ class FakeQuery implements Query {
   }
 
   EntryList _applyStartAt(EntryList entries) {
-    return _applyStartCommon(entries, inclusive: true);
+    final params = _start!['params'] as Map<String, dynamic>;
+    return _applyBounds(
+      entries,
+      direction: 'start',
+      inclusive: true,
+      params: params,
+    );
   }
 
   EntryList _applyStartAfter(EntryList entries) {
-    return _applyStartCommon(entries, inclusive: false);
-  }
-
-  EntryList _applyStartCommon(EntryList entries, {required bool inclusive}) {
-    final startValue = _start!['params']['value'];
-    final startKey = _start!['params']['key'];
-
-    if (_order == null) {
-      entries = _applyOrderByKey(entries);
-    }
-
-    if (_order!['type'] == 'byKey') {
-      entries = entries.where((entry) {
-        final c = _compareValues(entry.key, startValue);
-        return inclusive ? c >= 0 : c > 0;
-      }).toList();
-    }
-
-    if (_order!['type'] == 'byValue') {
-      entries = entries.where((entry) {
-        final c = _compareValues(entry.value, startValue);
-        return inclusive ? c >= 0 : c > 0;
-      }).toList();
-    }
-
-    if (_order!['type'] == 'byChild') {
-      entries = entries.where((entry) {
-        final path = _order!['params']['path'];
-        final parts = splitPath(path);
-        final value = traverseValue(entry.value, parts);
-        final c = _compareValues(value, startValue);
-        return inclusive ? c >= 0 : c > 0;
-      }).toList();
-    }
-
-    if (startKey != null) {
-      entries = entries.where((entry) {
-        final c = _compareValues(entry.key, startKey);
-        return inclusive ? c >= 0 : c > 0;
-      }).toList();
-    }
-
-    return entries;
+    final params = _start!['params'] as Map<String, dynamic>;
+    return _applyBounds(
+      entries,
+      direction: 'start',
+      inclusive: false,
+      params: params,
+    );
   }
 
   EntryList _applyEnd(EntryList entries) {
@@ -285,16 +255,35 @@ class FakeQuery implements Query {
   }
 
   EntryList _applyEndAt(EntryList entries) {
-    return _applyEndCommon(entries, inclusive: true);
+    final params = _end!['params'] as Map<String, dynamic>;
+    return _applyBounds(
+      entries,
+      direction: 'end',
+      inclusive: true,
+      params: params,
+    );
   }
 
   EntryList _applyEndBefore(EntryList entries) {
-    return _applyEndCommon(entries, inclusive: false);
+    final params = _end!['params'] as Map<String, dynamic>;
+    return _applyBounds(
+      entries,
+      direction: 'end',
+      inclusive: false,
+      params: params,
+    );
   }
 
-  EntryList _applyEndCommon(EntryList entries, {required bool inclusive}) {
-    final endValue = _end!['params']['value'];
-    final endKey = _end!['params']['key'];
+  EntryList _applyBounds(
+    EntryList entries, {
+    required String direction,
+    required bool inclusive,
+    required Map<String, dynamic> params,
+  }) {
+    final v = params['value'];
+    final k = params['key'];
+    final d = direction;
+    final i = inclusive;
 
     if (_order == null) {
       entries = _applyOrderByKey(entries);
@@ -302,15 +291,13 @@ class FakeQuery implements Query {
 
     if (_order!['type'] == 'byKey') {
       entries = entries.where((entry) {
-        final c = _compareValues(entry.key, endValue);
-        return inclusive ? c <= 0 : c < 0;
+        return _compareBounds(entry.key, v, d, i);
       }).toList();
     }
 
     if (_order!['type'] == 'byValue') {
       entries = entries.where((entry) {
-        final c = _compareValues(entry.value, endValue);
-        return inclusive ? c <= 0 : c < 0;
+        return _compareBounds(entry.value, v, d, i);
       }).toList();
     }
 
@@ -319,15 +306,13 @@ class FakeQuery implements Query {
         final path = _order!['params']['path'];
         final parts = splitPath(path);
         final value = traverseValue(entry.value, parts);
-        final c = _compareValues(value, endValue);
-        return inclusive ? c <= 0 : c < 0;
+        return _compareBounds(value, v, d, i);
       }).toList();
     }
 
-    if (endKey != null) {
+    if (k != null) {
       entries = entries.where((entry) {
-        final c = _compareValues(entry.key, endKey);
-        return inclusive ? c <= 0 : c < 0;
+        return _compareBounds(entry.key, k, d, i);
       }).toList();
     }
 
@@ -350,6 +335,18 @@ class FakeQuery implements Query {
   EntryList _applyLimitToLast(EntryList entries) {
     final limit = _limit!['params']['limit'] as int;
     return entries.reversed.take(limit).toList().reversed.toList();
+  }
+
+  bool _compareBounds(
+    Object? v1,
+    Object? v2,
+    String direction,
+    bool inclusive,
+  ) {
+    final d = direction;
+    final i = inclusive;
+    final c = _compareValues(v1, v2);
+    return d == 'start' ? (i ? c >= 0 : c > 0) : (i ? c <= 0 : c < 0);
   }
 
   int _compareValues(Object? v1, Object? v2) {
