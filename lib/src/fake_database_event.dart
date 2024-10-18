@@ -1,15 +1,65 @@
 part of '../fake_firebase_database.dart';
 
 class FakeDatabaseEvent implements DatabaseEvent {
-  @override
-  // TODO: implement previousChildKey
-  String? get previousChildKey => throw UnimplementedError();
+  final DatabaseEventType _type;
+  final DataSnapshot _snapshot;
+  final String? _previousChildKey;
+
+  FakeDatabaseEvent({
+    required DatabaseEventType type,
+    required DataSnapshot snapshot,
+    String? previousChildKey,
+  })  : _type = type,
+        _snapshot = snapshot,
+        _previousChildKey = previousChildKey;
 
   @override
-  // TODO: implement snapshot
-  DataSnapshot get snapshot => throw UnimplementedError();
+  DatabaseEventType get type => _type;
 
   @override
-  // TODO: implement type
-  DatabaseEventType get type => throw UnimplementedError();
+  DataSnapshot get snapshot => _snapshot;
+
+  @override
+  String? get previousChildKey => _previousChildKey;
+
+  factory FakeDatabaseEvent.childAdded(
+      DataSnapshot snapshot, String? previousChildKey) {
+    return FakeDatabaseEvent(
+      type: DatabaseEventType.childAdded,
+      snapshot: snapshot,
+      previousChildKey: previousChildKey,
+    );
+  }
+
+  factory FakeDatabaseEvent.childChanged(
+      DataSnapshot snapshot, String? previousChildKey) {
+    return FakeDatabaseEvent(
+      type: DatabaseEventType.childChanged,
+      snapshot: snapshot,
+      previousChildKey: previousChildKey,
+    );
+  }
+
+  factory FakeDatabaseEvent.childMoved(
+      DataSnapshot snapshot, String? previousChildKey) {
+    return FakeDatabaseEvent(
+      type: DatabaseEventType.childMoved,
+      snapshot: snapshot,
+      previousChildKey: previousChildKey,
+    );
+  }
+
+  factory FakeDatabaseEvent.childRemoved(DataSnapshot snapshot) {
+    return FakeDatabaseEvent(
+      type: DatabaseEventType.childRemoved,
+      snapshot: snapshot,
+    );
+  }
+
+  factory FakeDatabaseEvent.value(DataSnapshot snapshot) {
+    return FakeDatabaseEvent(
+      type: DatabaseEventType.value,
+      snapshot: snapshot,
+    );
+  }
 }
