@@ -32,8 +32,7 @@ class FakeQuery implements Query {
 
   @override
   Query equalTo(Object? value, {String? key}) {
-    // TODO: implement equalTo
-    throw UnimplementedError();
+    return startAt(value, key: key).endAt(value, key: key);
   }
 
   @override

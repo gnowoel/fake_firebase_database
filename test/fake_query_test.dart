@@ -526,6 +526,106 @@ void main() {
       });
     });
 
+    group('equalTo()', () {
+      setUp(() async {
+        final usersRef = database.ref('users');
+        await usersRef.set({
+          '1': {'name': 'Alice', 'age': 30},
+          '2': {'name': 'Bob', 'age': 35},
+          '3': {'name': 'Charlie', 'age': 30},
+          '4': {'name': 'David', 'age': 35},
+          '5': {'name': 'Eve', 'age': 40},
+        });
+      });
+
+      test('works with orderByChild()', () async {
+        final query = database.ref('users').orderByChild('age').equalTo(30);
+        final snapshot = await query.get();
+        final children = snapshot.children.toList();
+
+        expect(children.length, 2);
+        expect(children[0].child('name').value, 'Alice');
+        expect(children[1].child('name').value, 'Charlie');
+      });
+
+      test('works with orderByKey()', () async {
+        final query = database.ref('users').orderByKey().equalTo('3');
+        final snapshot = await query.get();
+        final children = snapshot.children.toList();
+
+        expect(children.length, 1);
+        expect(children[0].child('name').value, 'Charlie');
+      });
+
+      test('works with orderByValue()', () async {
+        await database.ref('scores').set({
+          'player1': 100,
+          'player2': 50,
+          'player3': 100,
+          'player4': 75,
+        });
+
+        final query = database.ref('scores').orderByValue().equalTo(100);
+        final snapshot = await query.get();
+        final children = snapshot.children.toList();
+
+        expect(children.length, 2);
+        expect(children[0].key, 'player1');
+        expect(children[1].key, 'player3');
+      });
+
+      test('works with equalTo(value, key)', () async {
+        final query =
+            database.ref('users').orderByChild('age').equalTo(35, key: '2');
+        final snapshot = await query.get();
+        final children = snapshot.children.toList();
+
+        expect(children.length, 1);
+        expect(children[0].child('name').value, 'Bob');
+      });
+
+      test('returns at most one entry when `key` exists', () async {
+        final query =
+            database.ref('users').orderByChild('age').equalTo(30, key: '3');
+        final snapshot = await query.get();
+        final children = snapshot.children.toList();
+
+        expect(children.length, 1);
+        expect(children[0].child('name').value, 'Charlie');
+      });
+
+      test('returns empty result if no matching data', () async {
+        final query = database.ref('users').orderByChild('age').equalTo(50);
+        final snapshot = await query.get();
+        final children = snapshot.children.toList();
+
+        expect(children.length, 0);
+      });
+
+      test('works with deep nested paths', () async {
+        await database.ref('nested').set({
+          'a': {
+            'info': {'score': 100}
+          },
+          'b': {
+            'info': {'score': 50}
+          },
+          'c': {
+            'info': {'score': 100}
+          },
+        });
+
+        final query =
+            database.ref('nested').orderByChild('info/score').equalTo(100);
+        final snapshot = await query.get();
+        final children = snapshot.children.toList();
+
+        expect(children.length, 2);
+        expect(children[0].key, 'a');
+        expect(children[1].key, 'c');
+      });
+    });
+
     group('limitToFirst()', () {
       setUp(() async {
         final usersRef = database.ref('users');
