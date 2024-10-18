@@ -359,6 +359,79 @@ void main() {
         expect(children[1].child('name').value, 'David');
         expect(children[2].child('name').value, 'Charlie');
       });
+
+      test('works with orderByKey()', () async {
+        final query = database.ref('users').orderByKey().endAt('3');
+        final snapshot = await query.get();
+        final children = snapshot.children.toList();
+
+        expect(children.length, 3);
+        expect(children[0].key, '1');
+        expect(children[1].key, '2');
+        expect(children[2].key, '3');
+      });
+
+      test('works with orderByValue()', () async {
+        await database.ref('scores').set({
+          'player1': 100,
+          'player2': 50,
+          'player3': 150,
+          'player4': 75,
+        });
+
+        final query = database.ref('scores').orderByValue().endAt(100);
+        final snapshot = await query.get();
+        final children = snapshot.children.toList();
+
+        expect(children.length, 3);
+        expect(children[0].key, 'player2');
+        expect(children[0].value, 50);
+        expect(children[1].key, 'player4');
+        expect(children[1].value, 75);
+        expect(children[2].key, 'player1');
+        expect(children[2].value, 100);
+      });
+
+      test('works with endAt(value, key)', () async {
+        final query =
+            database.ref('users').orderByChild('age').endAt(40, key: '2');
+        final snapshot = await query.get();
+        final children = snapshot.children.toList();
+
+        expect(children.length, 1);
+        expect(children[0].child('name').value, 'Bob');
+      });
+
+      test('returns all results if no matching data', () async {
+        final query = database.ref('users').orderByChild('age').endAt(50);
+        final snapshot = await query.get();
+        final children = snapshot.children.toList();
+
+        expect(children.length, 5);
+      });
+
+      test('works with deep nested paths', () async {
+        await database.ref('nested').set({
+          'a': {
+            'info': {'score': 100}
+          },
+          'b': {
+            'info': {'score': 50}
+          },
+          'c': {
+            'info': {'score': 75}
+          },
+        });
+
+        final query =
+            database.ref('nested').orderByChild('info/score').endAt(75);
+        final snapshot = await query.get();
+        final children = snapshot.children.toList();
+
+        expect(children.length, 2);
+        expect(children[0].key, 'b');
+        expect(children[1].key, 'c');
+      });
     });
 
     group('endBefore()', () {
@@ -381,6 +454,75 @@ void main() {
         expect(children.length, 2);
         expect(children[0].child('name').value, 'Eve');
         expect(children[1].child('name').value, 'David');
+      });
+
+      test('works with orderByKey()', () async {
+        final query = database.ref('users').orderByKey().endBefore('3');
+        final snapshot = await query.get();
+        final children = snapshot.children.toList();
+
+        expect(children.length, 2);
+        expect(children[0].key, '1');
+        expect(children[1].key, '2');
+      });
+
+      test('works with orderByValue()', () async {
+        await database.ref('scores').set({
+          'player1': 100,
+          'player2': 50,
+          'player3': 150,
+          'player4': 75,
+        });
+
+        final query = database.ref('scores').orderByValue().endBefore(100);
+        final snapshot = await query.get();
+        final children = snapshot.children.toList();
+
+        expect(children.length, 2);
+        expect(children[0].key, 'player2');
+        expect(children[0].value, 50);
+        expect(children[1].key, 'player4');
+        expect(children[1].value, 75);
+      });
+
+      test('works with endBefore(value, key)', () async {
+        final query =
+            database.ref('users').orderByChild('age').endBefore(35, key: '4');
+        final snapshot = await query.get();
+        final children = snapshot.children.toList();
+
+        expect(children.length, 1);
+        expect(children[0].child('name').value, 'Charlie');
+      });
+
+      test('returns empty result if no matching data', () async {
+        final query = database.ref('users').orderByChild('age').endBefore(20);
+        final snapshot = await query.get();
+        final children = snapshot.children.toList();
+
+        expect(children.length, 0);
+      });
+
+      test('works with deep nested paths', () async {
+        await database.ref('nested').set({
+          'a': {
+            'info': {'score': 100}
+          },
+          'b': {
+            'info': {'score': 50}
+          },
+          'c': {
+            'info': {'score': 75}
+          },
+        });
+
+        final query =
+            database.ref('nested').orderByChild('info/score').endBefore(75);
+        final snapshot = await query.get();
+        final children = snapshot.children.toList();
+
+        expect(children.length, 1);
+        expect(children[0].key, 'b');
       });
     });
 
