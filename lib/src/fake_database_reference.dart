@@ -166,16 +166,18 @@ class FakeDatabaseReference extends FakeQuery implements DatabaseReference {
     final v1 = s1.value;
     final v2 = s2.value;
 
-    if (v1 == v2) return;
-
-    if (v1 is Map && v2 is Map) {
-      if (mapEquals(v1, v2)) return;
-    }
-
-    if (v1 is List && v2 is List) {
-      if (listEquals(v1, v2)) return;
-    }
+    if (_deepEquals(v1, v2)) return;
 
     _triggerValue(s2);
+  }
+
+  bool _deepEquals(Object? a, Object? b) {
+    if (a is Map && b is Map) {
+      return mapEquals(a, b);
+    } else if (a is List && b is List) {
+      return listEquals(a, b);
+    } else {
+      return a == b;
+    }
   }
 }
