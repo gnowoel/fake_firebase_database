@@ -171,6 +171,12 @@ class FakeDatabaseReference extends FakeQuery implements DatabaseReference {
     _triggerValue(s2);
   }
 
+  String? _getPreviousChildKey(Map map, String key) {
+    final keys = map.keys.toList();
+    final index = keys.indexOf(key);
+    return index > 0 ? keys[index - 1] : null;
+  }
+
   bool _deepEquals(Object? a, Object? b) {
     if (a is Map && b is Map) {
       return mapEquals(a, b);
