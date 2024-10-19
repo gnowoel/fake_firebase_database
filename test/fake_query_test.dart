@@ -809,6 +809,25 @@ void main() {
         });
       });
 
+      test('onChildAdded emits events when children are added', () async {
+        final ref = database.ref('users');
+
+        expectLater(
+          ref.onChildAdded,
+          emitsInOrder([
+            predicate<DatabaseEvent>((e) => e.snapshot.key == 'user1'),
+            predicate<DatabaseEvent>((e) => e.snapshot.key == 'user2'),
+          ]),
+        );
+
+        await ref.update({
+          'user1': {'name': 'Alice'}
+        });
+        await ref.update({
+          'user2': {'name': 'Bob'}
+        });
+      });
+
       test('onChildRemoved emits events when children are removed', () async {
         final ref = database.ref('users');
 
