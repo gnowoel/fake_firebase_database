@@ -849,6 +849,31 @@ void main() {
         await ref.update({'user2': null});
         await ref.update({'user3': null});
       });
+
+      test('onChildMoved emits events when children change order', () async {
+        final ref = database.ref('users');
+
+        await ref.set({
+          'user1': {'name': 'Alice', 'order': 1},
+          'user2': {'name': 'Bob', 'order': 2},
+          'user3': {'name': 'Charlie', 'order': 3},
+        });
+
+        expectLater(
+          ref.orderByChild('order').onChildMoved,
+          emitsInOrder([
+            predicate<DatabaseEvent>((e) => e.snapshot.key == 'user3'),
+            predicate<DatabaseEvent>((e) => e.snapshot.key == 'user1'),
+          ]),
+        );
+
+        await ref.update({
+          'user3': {'order': 0}
+        });
+        await ref.update({
+          'user1': {'order': 4}
+        });
+      });
     });
   });
 }
