@@ -49,6 +49,8 @@ class FakeDatabaseReference extends FakeQuery implements DatabaseReference {
 
   @override
   Future<void> set(Object? value) async {
+    final s1 = await get();
+
     final parts = _pathParts;
     final lastPart = parts.removeLast();
     Map<String, dynamic> data = _database._store;
@@ -64,8 +66,8 @@ class FakeDatabaseReference extends FakeQuery implements DatabaseReference {
     data[lastPart] = value;
     _cleanUp();
 
-    final snapshot = await get();
-    _triggerValue(snapshot);
+    final s2 = await get();
+    _triggerEvents(s1, s2);
   }
 
   @override
@@ -82,6 +84,8 @@ class FakeDatabaseReference extends FakeQuery implements DatabaseReference {
 
   @override
   Future<void> update(Map<String, Object?> value) async {
+    final s1 = await get();
+
     final parts = _pathParts;
     Map<String, dynamic> data = _database._store;
 
@@ -98,6 +102,9 @@ class FakeDatabaseReference extends FakeQuery implements DatabaseReference {
 
     _cleanDown(data);
     _cleanUp();
+
+    final s2 = await get();
+    _triggerEvents(s1, s2);
   }
 
   void _cleanDown(Object? value) {
@@ -149,5 +156,26 @@ class FakeDatabaseReference extends FakeQuery implements DatabaseReference {
     if (value is Map) return value.isEmpty;
     if (value is List) return value.isEmpty;
     return false;
+  }
+
+  void _triggerEvents(DataSnapshot s1, DataSnapshot s2) {
+    _triggerValueEvent(s1, s2);
+  }
+
+  void _triggerValueEvent(DataSnapshot s1, DataSnapshot s2) {
+    final v1 = s1.value;
+    final v2 = s2.value;
+
+    if (v1 == v2) return;
+
+    if (v1 is Map && v2 is Map) {
+      if (mapEquals(v1, v2)) return;
+    }
+
+    if (v1 is List && v2 is List) {
+      if (listEquals(v1, v2)) return;
+    }
+
+    _triggerValue(s2);
   }
 }
