@@ -160,7 +160,8 @@ class FakeDatabaseReference extends FakeQuery implements DatabaseReference {
 
   void _triggerEvents(DataSnapshot s1, DataSnapshot s2) {
     _triggerValueEvent(s1, s2);
-    _triggerChildEvents(s1, s2);
+    _triggerChildCommonEvents(s1, s2);
+    _triggerChildMovedEvent(s1, s2);
   }
 
   void _triggerValueEvent(DataSnapshot s1, DataSnapshot s2) {
@@ -172,7 +173,7 @@ class FakeDatabaseReference extends FakeQuery implements DatabaseReference {
     _triggerValue(s2);
   }
 
-  void _triggerChildEvents(DataSnapshot s1, DataSnapshot s2) {
+  void _triggerChildCommonEvents(DataSnapshot s1, DataSnapshot s2) {
     final v1 = s1.value;
     final v2 = s2.value;
 
@@ -186,32 +187,36 @@ class FakeDatabaseReference extends FakeQuery implements DatabaseReference {
     final commonKeys = keys1.intersection(keys2);
 
     for (final key in addedKeys) {
-      _triggerChildAddedEvent(s2.child(key), _getPreviousChildKey(v2, key));
+      _triggerChildAdded(s2.child(key), _getPreviousChildKey(v2, key));
     }
 
     for (final key in removedKeys) {
-      _triggerChildRemovedEvent(s1.child(key));
+      _triggerChildRemoved(s1.child(key));
     }
 
     for (final key in commonKeys) {
       if (!_deepEquals(v1[key], v2[key])) {
-        _triggerChildChangedEvent(s2.child(key), _getPreviousChildKey(v2, key));
+        _triggerChildChanged(s2.child(key), _getPreviousChildKey(v2, key));
       }
     }
   }
 
-  void _triggerChildAddedEvent(
-      DataSnapshot snapshot, String? previousChildKey) {
-    _triggerChildAdded(snapshot, previousChildKey);
-  }
+  void _triggerChildMovedEvent(DataSnapshot s1, DataSnapshot s2) {
+    final v1 = s1.value;
+    final v2 = s2.value;
 
-  void _triggerChildChangedEvent(
-      DataSnapshot snapshot, String? previousChildKey) {
-    _triggerChildChanged(snapshot, previousChildKey);
-  }
+    if (v1 is! Map || v2 is! Map) return;
 
-  void _triggerChildRemovedEvent(DataSnapshot snapshot) {
-    _triggerChildRemoved(snapshot);
+    final keys1 = v1.keys.toList();
+    final keys2 = v2.keys.toList();
+
+    for (int i = 0; i < keys2.length; i++) {
+      final key = keys2[i];
+      final oldIndex = keys1.indexOf(key);
+      if (oldIndex != -1 && oldIndex != i) {
+        _triggerChildMoved(s2.child(key), _getPreviousChildKey(v2, key));
+      }
+    }
   }
 
   String? _getPreviousChildKey(Map map, String key) {
