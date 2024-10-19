@@ -6,9 +6,8 @@ import 'package:fake_firebase_database/fake_firebase_database.dart';
 void main() {
   final database = FakeFirebaseDatabase.instance;
 
-  setUp(() async {
-    final ref = database.ref();
-    await ref.set(null);
+  tearDown(() async {
+    await database.ref().set(null);
   });
 
   group('FakeQuery', () {
@@ -789,6 +788,26 @@ void main() {
 
         await ref.set({'name1': 'Alice'});
         await ref.set({'name1': 'Alice', 'name2': 'Bob'});
+      });
+
+      test('onChildAdded emits events when children are added', () async {
+        final ref = database.ref('users');
+
+        expectLater(
+          ref.onChildAdded,
+          emitsInOrder([
+            predicate<DatabaseEvent>((e) => e.snapshot.key == 'user1'),
+            predicate<DatabaseEvent>((e) => e.snapshot.key == 'user2'),
+          ]),
+        );
+
+        await ref.update({
+          'user1': {'name': 'Alice'}
+        });
+
+        await ref.update({
+          'user2': {'name': 'Bob'}
+        });
       });
     });
   });

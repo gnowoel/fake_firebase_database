@@ -174,8 +174,8 @@ class FakeDatabaseReference extends FakeQuery implements DatabaseReference {
   }
 
   void _triggerChildCommonEvents(DataSnapshot s1, DataSnapshot s2) {
-    final v1 = s1.value;
-    final v2 = s2.value;
+    final v1 = s1.value ?? {};
+    final v2 = s2.value ?? {};
 
     if (v1 is! Map || v2 is! Map) return;
 
@@ -202,8 +202,8 @@ class FakeDatabaseReference extends FakeQuery implements DatabaseReference {
   }
 
   void _triggerChildMovedEvent(DataSnapshot s1, DataSnapshot s2) {
-    final v1 = s1.value;
-    final v2 = s2.value;
+    final v1 = s1.value ?? {};
+    final v2 = s2.value ?? {};
 
     if (v1 is! Map || v2 is! Map) return;
 
