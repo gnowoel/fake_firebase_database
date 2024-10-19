@@ -160,6 +160,7 @@ class FakeDatabaseReference extends FakeQuery implements DatabaseReference {
 
   void _triggerEvents(DataSnapshot s1, DataSnapshot s2) {
     _triggerValueEvent(s1, s2);
+    _triggerChildEvents(s1, s2);
   }
 
   void _triggerValueEvent(DataSnapshot s1, DataSnapshot s2) {
@@ -169,6 +170,48 @@ class FakeDatabaseReference extends FakeQuery implements DatabaseReference {
     if (_deepEquals(v1, v2)) return;
 
     _triggerValue(s2);
+  }
+
+  void _triggerChildEvents(DataSnapshot s1, DataSnapshot s2) {
+    final v1 = s1.value;
+    final v2 = s2.value;
+
+    if (v1 is! Map || v2 is! Map) return;
+
+    final keys1 = v1.keys.toSet();
+    final keys2 = v2.keys.toSet();
+
+    final addedKeys = keys2.difference(keys1);
+    final removedKeys = keys1.difference(keys2);
+    final commonKeys = keys1.intersection(keys2);
+
+    for (final key in addedKeys) {
+      _triggerChildAddedEvent(s2.child(key), _getPreviousChildKey(v2, key));
+    }
+
+    for (final key in removedKeys) {
+      _triggerChildRemovedEvent(s1.child(key));
+    }
+
+    for (final key in commonKeys) {
+      if (!_deepEquals(v1[key], v2[key])) {
+        _triggerChildChangedEvent(s2.child(key), _getPreviousChildKey(v2, key));
+      }
+    }
+  }
+
+  void _triggerChildAddedEvent(
+      DataSnapshot snapshot, String? previousChildKey) {
+    _triggerChildAdded(snapshot, previousChildKey);
+  }
+
+  void _triggerChildChangedEvent(
+      DataSnapshot snapshot, String? previousChildKey) {
+    _triggerChildChanged(snapshot, previousChildKey);
+  }
+
+  void _triggerChildRemovedEvent(DataSnapshot snapshot) {
+    _triggerChildRemoved(snapshot);
   }
 
   String? _getPreviousChildKey(Map map, String key) {
