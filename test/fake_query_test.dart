@@ -804,10 +804,31 @@ void main() {
         await ref.update({
           'user1': {'name': 'Alice'}
         });
-
         await ref.update({
           'user2': {'name': 'Bob'}
         });
+      });
+
+      test('onChildRemoved emits events when children are removed', () async {
+        final ref = database.ref('users');
+
+        await ref.set(<String, dynamic>{
+          // Mimic model properties
+          'user1': {'name': 'Alice'},
+          'user2': {'name': 'Bob'},
+          'user3': {'name': 'Charlie'},
+        });
+
+        expectLater(
+          ref.onChildRemoved,
+          emitsInOrder([
+            predicate<DatabaseEvent>((e) => e.snapshot.key == 'user2'),
+            predicate<DatabaseEvent>((e) => e.snapshot.key == 'user3'),
+          ]),
+        );
+
+        await ref.update({'user2': null});
+        await ref.update({'user3': null});
       });
     });
   });
