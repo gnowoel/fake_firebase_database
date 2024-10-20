@@ -19,9 +19,7 @@ class FakeQuery implements Query {
   final _childRemovedController = _createStreamController();
   final _valueController = _createStreamController();
 
-  FakeQuery(this._database, this._path) {
-    _database._addActiveQuery(this);
-  }
+  FakeQuery(this._database, this._path);
 
   static StreamController<DatabaseEvent> _createStreamController() {
     return StreamController<DatabaseEvent>.broadcast();

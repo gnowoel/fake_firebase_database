@@ -81,7 +81,9 @@ class FakeFirebaseDatabase implements FirebaseDatabase {
     _activeQueries.remove(query);
   }
 
-  void _notifyListeners() {
+  void _notifyListeners(FakeQuery query) {
+    _addActiveQuery(query);
+
     for (final query in _queries) {
       query._notifyListeners();
     }
