@@ -457,7 +457,7 @@ class FakeQuery implements Query {
     final v1 = s1.value;
     final v2 = s2.value;
 
-    if (_deepEquals(v1, v2)) return;
+    if (_shallowEquals(v1, v2)) return;
 
     _triggerValue(s2);
   }
@@ -484,7 +484,7 @@ class FakeQuery implements Query {
     }
 
     for (final key in commonKeys) {
-      if (!_deepEquals(v1[key], v2[key])) {
+      if (!_shallowEquals(v1[key], v2[key])) {
         _triggerChildChanged(s2.child(key), _getPreviousChildKey(v2, key));
       }
     }
@@ -514,7 +514,7 @@ class FakeQuery implements Query {
     return index > 0 ? keys[index - 1] : null;
   }
 
-  bool _deepEquals(Object? a, Object? b) {
+  bool _shallowEquals(Object? a, Object? b) {
     if (a is Map && b is Map) {
       return mapEquals(a, b);
     } else if (a is List && b is List) {
