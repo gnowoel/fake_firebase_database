@@ -48,6 +48,10 @@ class FakeQuery implements Query {
 
   @override
   Future<DataSnapshot> get() async {
+    return _getSnapshot();
+  }
+
+  DataSnapshot _getSnapshot() {
     final parts = _pathParts;
     Object? data = _database._store;
 

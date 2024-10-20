@@ -49,7 +49,7 @@ class FakeDatabaseReference extends FakeQuery implements DatabaseReference {
 
   @override
   Future<void> set(Object? value) async {
-    final s1 = await get();
+    final s1 = _getSnapshot();
 
     final parts = _pathParts;
     final lastPart = parts.removeLast();
@@ -66,7 +66,7 @@ class FakeDatabaseReference extends FakeQuery implements DatabaseReference {
     data[lastPart] = value;
     _cleanUp();
 
-    final s2 = await get();
+    final s2 = _getSnapshot();
     _triggerEvents(s1, s2);
   }
 
@@ -84,7 +84,7 @@ class FakeDatabaseReference extends FakeQuery implements DatabaseReference {
 
   @override
   Future<void> update(Map<String, Object?> value) async {
-    final s1 = await get();
+    final s1 = _getSnapshot();
 
     final parts = _pathParts;
     Map<String, dynamic> data = _database._store;
@@ -103,7 +103,7 @@ class FakeDatabaseReference extends FakeQuery implements DatabaseReference {
     _cleanDown(data);
     _cleanUp();
 
-    final s2 = await get();
+    final s2 = _getSnapshot();
     _triggerEvents(s1, s2);
   }
 
