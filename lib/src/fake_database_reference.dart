@@ -65,7 +65,7 @@ class FakeDatabaseReference extends FakeQuery implements DatabaseReference {
     _cleanDown(value);
     data[lastPart] = value;
     _cleanUp();
-    _triggerEvents();
+    _notifyListeners();
   }
 
   @override
@@ -98,7 +98,7 @@ class FakeDatabaseReference extends FakeQuery implements DatabaseReference {
 
     _cleanDown(data);
     _cleanUp();
-    _triggerEvents();
+    _notifyListeners();
   }
 
   void _cleanDown(Object? value) {
@@ -157,7 +157,15 @@ class FakeDatabaseReference extends FakeQuery implements DatabaseReference {
     return _lastSnapshot!;
   }
 
-  void _triggerEvents() {
+  void _notifyListeners() {
+    final s1 = _getLastSnapshot();
+    final s2 = _getSnapshot();
+
+    _triggerEvents(s1, s2);
+    _lastSnapshot = s2;
+  }
+
+  void _triggerEvents(DataSnapshot s1, DataSnapshot s2) {
     final s1 = _getLastSnapshot();
     final s2 = _getSnapshot();
 
