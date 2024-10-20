@@ -772,8 +772,8 @@ void main() {
       });
     });
 
-    group('Real-time event streams', () {
-      test('onValue emits events when data changes', () async {
+    group('get onValue', () {
+      test('emits events when data changes', () async {
         final ref = database.ref('users');
 
         expectLater(
@@ -789,7 +789,9 @@ void main() {
         await ref.set({'name1': 'Alice'});
         await ref.set({'name1': 'Alice', 'name2': 'Bob'});
       });
+    });
 
+    group('get onChildAdded', () {
       test('onChildAdded emits events when children are added', () async {
         final ref = database.ref('users');
 
@@ -808,27 +810,38 @@ void main() {
           'user2': {'name': 'Bob'}
         });
       });
+    });
 
-      test('onChildAdded emits events when children are added', () async {
+    group('get onChildChanged', () {
+      test('emits events when children are changed', () async {
         final ref = database.ref('users');
 
+        await ref.set({
+          'user1': {'name': 'Alice'},
+          'user2': {'name': 'Bob'},
+        });
+
         expectLater(
-          ref.onChildAdded,
+          ref.onChildChanged,
           emitsInOrder([
-            predicate<DatabaseEvent>((e) => e.snapshot.key == 'user1'),
-            predicate<DatabaseEvent>((e) => e.snapshot.key == 'user2'),
+            predicate<DatabaseEvent>(
+                (e) => e.snapshot.child('name').value == 'Alice 2'),
+            predicate<DatabaseEvent>(
+                (e) => e.snapshot.child('name').value == 'Bob 2'),
           ]),
         );
 
         await ref.update({
-          'user1': {'name': 'Alice'}
+          'user1': {'name': 'Alice 2'}
         });
         await ref.update({
-          'user2': {'name': 'Bob'}
+          'user2': {'name': 'Bob 2'}
         });
       });
+    });
 
-      test('onChildRemoved emits events when children are removed', () async {
+    group('get onChildRemoved', () {
+      test('emits events when children are removed', () async {
         final ref = database.ref('users');
 
         await ref.set(<String, dynamic>{
@@ -849,8 +862,10 @@ void main() {
         await ref.update({'user2': null});
         await ref.update({'user3': null});
       });
+    });
 
-      test('onChildMoved emits events when children change order', () async {
+    group('get onChildMoved', () {
+      test('emits events when children change order', () async {
         final ref = database.ref('users');
 
         await ref.set({
