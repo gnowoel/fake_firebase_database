@@ -14,6 +14,10 @@ void main() {
       snapshot = FakeDataSnapshot(ref, {'key': 'value'});
     });
 
+    tearDown(() {
+      database.clear();
+    });
+
     test('constructor sets properties correctly', () {
       final event = FakeDatabaseEvent(
         type: DatabaseEventType.childAdded,

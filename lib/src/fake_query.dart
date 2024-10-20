@@ -19,7 +19,9 @@ class FakeQuery implements Query {
   final _childRemovedController = _createStreamController();
   final _valueController = _createStreamController();
 
-  FakeQuery(this._database, this._path);
+  FakeQuery(this._database, this._path) {
+    _database._addActiveQuery(this);
+  }
 
   static StreamController<DatabaseEvent> _createStreamController() {
     return StreamController<DatabaseEvent>.broadcast();
@@ -106,6 +108,17 @@ class FakeQuery implements Query {
 
   @override
   Stream<DatabaseEvent> get onValue => _valueController.stream;
+
+  @visibleForTesting
+  void dispose() {
+    _database._removeActiveQuery(this);
+
+    _childAddedController.close();
+    _childChangedController.close();
+    _childMovedController.close();
+    _childRemovedController.close();
+    _valueController.close();
+  }
 
   void _triggerChildAdded(DataSnapshot snapshot, String? previousChildKey) {
     _childAddedController.add(
@@ -443,14 +456,9 @@ class FakeQuery implements Query {
   }
 
   void _triggerEvents(DataSnapshot s1, DataSnapshot s2) {
-    final s1 = _getLastSnapshot();
-    final s2 = _getSnapshot();
-
     _triggerValueEvent(s1, s2);
     _triggerChildCommonEvents(s1, s2);
     _triggerChildMovedEvent(s1, s2);
-
-    _lastSnapshot = s2;
   }
 
   void _triggerValueEvent(DataSnapshot s1, DataSnapshot s2) {

@@ -63,7 +63,7 @@ class FakeDatabaseReference extends FakeQuery implements DatabaseReference {
     _cleanDown(value);
     data[lastPart] = value;
     _cleanUp();
-    _notifyListeners();
+    _database._notifyListeners();
   }
 
   @override
@@ -96,7 +96,7 @@ class FakeDatabaseReference extends FakeQuery implements DatabaseReference {
 
     _cleanDown(data);
     _cleanUp();
-    _notifyListeners();
+    _database._notifyListeners();
   }
 
   void _cleanDown(Object? value) {

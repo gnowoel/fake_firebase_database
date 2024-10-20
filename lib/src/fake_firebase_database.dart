@@ -2,6 +2,7 @@ part of '../fake_firebase_database.dart';
 
 class FakeFirebaseDatabase implements FirebaseDatabase {
   final Map<String, dynamic> _store = {};
+  final Set<FakeQuery> _activeQueries = {};
 
   @override
   String? databaseURL;
@@ -70,5 +71,33 @@ class FakeFirebaseDatabase implements FirebaseDatabase {
   void useDatabaseEmulator(String host, int port,
       {bool automaticHostMapping = true}) {
     // TODO: implement useDatabaseEmulator
+  }
+
+  void _addActiveQuery(FakeQuery query) {
+    _activeQueries.add(query);
+  }
+
+  void _removeActiveQuery(FakeQuery query) {
+    _activeQueries.remove(query);
+  }
+
+  void _notifyListeners() {
+    for (final query in _queries) {
+      query._notifyListeners();
+    }
+  }
+
+  @visibleForTesting
+  void clear() {
+    for (final query in _queries) {
+      query.dispose();
+    }
+
+    _activeQueries.clear();
+    _store.clear();
+  }
+
+  List<FakeQuery> get _queries {
+    return _activeQueries.toList(); // To avoid concurrent modification
   }
 }

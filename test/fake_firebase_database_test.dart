@@ -6,9 +6,8 @@ import 'package:fake_firebase_database/fake_firebase_database.dart';
 void main() {
   final database = FakeFirebaseDatabase.instance;
 
-  setUp(() async {
-    final ref = database.ref();
-    await ref.set(null);
+  tearDown(() {
+    database.clear();
   });
 
   group('FakeFirebaseDatabase', () {
