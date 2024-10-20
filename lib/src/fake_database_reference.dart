@@ -1,6 +1,8 @@
 part of '../fake_firebase_database.dart';
 
 class FakeDatabaseReference extends FakeQuery implements DatabaseReference {
+  DataSnapshot? _lastSnapshot;
+
   FakeDatabaseReference(super._database, super._path);
 
   @override
@@ -49,8 +51,6 @@ class FakeDatabaseReference extends FakeQuery implements DatabaseReference {
 
   @override
   Future<void> set(Object? value) async {
-    final s1 = _getSnapshot();
-
     final parts = _pathParts;
     final lastPart = parts.removeLast();
     Map<String, dynamic> data = _database._store;
@@ -65,9 +65,7 @@ class FakeDatabaseReference extends FakeQuery implements DatabaseReference {
     _cleanDown(value);
     data[lastPart] = value;
     _cleanUp();
-
-    final s2 = _getSnapshot();
-    _triggerEvents(s1, s2);
+    _triggerEvents();
   }
 
   @override
@@ -84,8 +82,6 @@ class FakeDatabaseReference extends FakeQuery implements DatabaseReference {
 
   @override
   Future<void> update(Map<String, Object?> value) async {
-    final s1 = _getSnapshot();
-
     final parts = _pathParts;
     Map<String, dynamic> data = _database._store;
 
@@ -102,9 +98,7 @@ class FakeDatabaseReference extends FakeQuery implements DatabaseReference {
 
     _cleanDown(data);
     _cleanUp();
-
-    final s2 = _getSnapshot();
-    _triggerEvents(s1, s2);
+    _triggerEvents();
   }
 
   void _cleanDown(Object? value) {
@@ -158,10 +152,20 @@ class FakeDatabaseReference extends FakeQuery implements DatabaseReference {
     return false;
   }
 
-  void _triggerEvents(DataSnapshot s1, DataSnapshot s2) {
+  DataSnapshot _getLastSnapshot() {
+    _lastSnapshot ??= FakeDataSnapshot(ref, null);
+    return _lastSnapshot!;
+  }
+
+  void _triggerEvents() {
+    final s1 = _getLastSnapshot();
+    final s2 = _getSnapshot();
+
     _triggerValueEvent(s1, s2);
     _triggerChildCommonEvents(s1, s2);
     _triggerChildMovedEvent(s1, s2);
+
+    _lastSnapshot = s2;
   }
 
   void _triggerValueEvent(DataSnapshot s1, DataSnapshot s2) {
