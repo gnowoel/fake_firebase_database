@@ -65,6 +65,8 @@ class FakeQuery implements Query {
       data = Map.fromEntries(entries);
     }
 
+    data = _deepCopy(data);
+
     return FakeDataSnapshot(ref, data);
   }
 
@@ -533,6 +535,13 @@ class FakeQuery implements Query {
     final keys = map.keys.toList();
     final index = keys.indexOf(key);
     return index > 0 ? keys[index - 1] : null;
+  }
+
+  Object? _deepCopy(Object? data) {
+    if (data is Map || data is List) {
+      data = jsonDecode(jsonEncode(data));
+    }
+    return data;
   }
 
   bool _shallowEquals(Object? a, Object? b) {
