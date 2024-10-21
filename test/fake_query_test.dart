@@ -810,6 +810,21 @@ void main() {
           'user2': {'name': 'Bob'}
         });
       });
+
+      test('events propagate to the parent ref', () async {
+        final ref = database.ref('users');
+
+        expectLater(
+          ref.onChildAdded,
+          emitsInOrder([
+            predicate<DatabaseEvent>((e) => e.snapshot.key == 'user1'),
+            predicate<DatabaseEvent>((e) => e.snapshot.key == 'user2'),
+          ]),
+        );
+
+        await ref.child('user1').set({'name': 'Alice 2'});
+        await ref.child('user2').set({'name': 'Bob 2'});
+      });
     });
 
     group('get onChildChanged', () {
@@ -838,6 +853,28 @@ void main() {
           'user2': {'name': 'Bob 2'}
         });
       });
+
+      test('events propagate to the parent ref', () async {
+        final ref = database.ref('users');
+
+        await ref.set({
+          'user1': {'name': 'Alice'},
+          'user2': {'name': 'Bob'},
+        });
+
+        expectLater(
+          ref.onChildChanged,
+          emitsInOrder([
+            predicate<DatabaseEvent>(
+                (e) => e.snapshot.child('name').value == 'Alice 2'),
+            predicate<DatabaseEvent>(
+                (e) => e.snapshot.child('name').value == 'Bob 2'),
+          ]),
+        );
+
+        await ref.child('user1').update({'name': 'Alice 2'});
+        await ref.child('user2').update({'name': 'Bob 2'});
+      });
     });
 
     group('get onChildRemoved', () {
@@ -861,6 +898,28 @@ void main() {
 
         await ref.update({'user2': null});
         await ref.update({'user3': null});
+      });
+
+      test('events propagate to the parent ref', () async {
+        final ref = database.ref('users');
+
+        await ref.set(<String, dynamic>{
+          // Mimic model properties
+          'user1': {'name': 'Alice'},
+          'user2': {'name': 'Bob'},
+          'user3': {'name': 'Charlie'},
+        });
+
+        expectLater(
+          ref.onChildRemoved,
+          emitsInOrder([
+            predicate<DatabaseEvent>((e) => e.snapshot.key == 'user2'),
+            predicate<DatabaseEvent>((e) => e.snapshot.key == 'user3'),
+          ]),
+        );
+
+        await ref.child('user2').remove();
+        await ref.child('user3').remove();
       });
     });
 
@@ -888,6 +947,27 @@ void main() {
         await ref.update({
           'user1': {'order': 4}
         });
+      });
+
+      test('events propagate to the parent ref', () async {
+        final ref = database.ref('users');
+
+        await ref.set({
+          'user1': {'name': 'Alice', 'order': 1},
+          'user2': {'name': 'Bob', 'order': 2},
+          'user3': {'name': 'Charlie', 'order': 3},
+        });
+
+        expectLater(
+          ref.orderByChild('order').onChildMoved,
+          emitsInOrder([
+            predicate<DatabaseEvent>((e) => e.snapshot.key == 'user3'),
+            predicate<DatabaseEvent>((e) => e.snapshot.key == 'user1'),
+          ]),
+        );
+
+        await ref.child('user3').update({'order': 0});
+        await ref.child('user1').update({'order': 4});
       });
     });
   });
