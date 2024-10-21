@@ -93,19 +93,34 @@ class FakeQuery implements Query {
   }
 
   @override
-  Stream<DatabaseEvent> get onChildAdded => _childAddedController.stream;
+  Stream<DatabaseEvent> get onChildAdded {
+    _database._addActiveQuery(this);
+    return _childAddedController.stream;
+  }
 
   @override
-  Stream<DatabaseEvent> get onChildChanged => _childChangedController.stream;
+  Stream<DatabaseEvent> get onChildChanged {
+    _database._addActiveQuery(this);
+    return _childChangedController.stream;
+  }
 
   @override
-  Stream<DatabaseEvent> get onChildMoved => _childMovedController.stream;
+  Stream<DatabaseEvent> get onChildMoved {
+    _database._addActiveQuery(this);
+    return _childMovedController.stream;
+  }
 
   @override
-  Stream<DatabaseEvent> get onChildRemoved => _childRemovedController.stream;
+  Stream<DatabaseEvent> get onChildRemoved {
+    _database._addActiveQuery(this);
+    return _childRemovedController.stream;
+  }
 
   @override
-  Stream<DatabaseEvent> get onValue => _valueController.stream;
+  Stream<DatabaseEvent> get onValue {
+    _database._addActiveQuery(this);
+    return _valueController.stream;
+  }
 
   @visibleForTesting
   void dispose() {
