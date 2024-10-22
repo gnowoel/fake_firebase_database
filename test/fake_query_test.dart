@@ -970,5 +970,89 @@ void main() {
         await ref.child('user1').update({'order': 4});
       });
     });
+
+    group('once()', () {
+      test('for `value` events', () async {
+        final ref = database.ref('users');
+        final future = ref.once();
+
+        expectLater(future, completion((e) {
+          return (e.snapshot.value as Map).length == 1;
+        }));
+
+        await ref.set({'name1': 'Alice'});
+        await ref.set({'name1': 'Alice', 'name2': 'Bob'});
+      });
+
+      test('for the `childAdded` events', () async {
+        final ref = database.ref('users');
+        final future = ref.once(DatabaseEventType.childAdded);
+
+        expectLater(future, completion((e) {
+          return e.snapshot.key == 'user1';
+        }));
+
+        await ref.child('user1').set({'name': 'Alice 2'});
+        await ref.child('user2').set({'name': 'Bob 2'});
+      });
+
+      test('for the `childChanged` events', () async {
+        final ref = database.ref('users');
+
+        await ref.set({
+          'user1': {'name': 'Alice'},
+          'user2': {'name': 'Bob'},
+        });
+
+        final future = ref.once(DatabaseEventType.childChanged);
+
+        expectLater(future, completion((e) {
+          return e.snapshot.child('name').value == 'Alice 2';
+        }));
+
+        await ref.child('user1').update({'name': 'Alice 2'});
+        await ref.child('user2').update({'name': 'Bob 2'});
+      });
+
+      test('for the `childRemoved` events', () async {
+        final ref = database.ref('users');
+
+        await ref.set(<String, dynamic>{
+          // Mimic model properties
+          'user1': {'name': 'Alice'},
+          'user2': {'name': 'Bob'},
+          'user3': {'name': 'Charlie'},
+        });
+
+        final future = ref.once(DatabaseEventType.childRemoved);
+
+        expectLater(future, completion((e) {
+          return e.snapshot.key == 'user2';
+        }));
+
+        await ref.child('user2').remove();
+        await ref.child('user3').remove();
+      });
+
+      test('for the `childMoved` events', () async {
+        final ref = database.ref('users');
+
+        await ref.set({
+          'user1': {'name': 'Alice', 'order': 1},
+          'user2': {'name': 'Bob', 'order': 2},
+          'user3': {'name': 'Charlie', 'order': 3},
+        });
+
+        final future =
+            ref.orderByChild('order').once(DatabaseEventType.childMoved);
+
+        expectLater(future, completion((e) {
+          return e.snapshot.key == 'user3';
+        }));
+
+        await ref.child('user3').update({'order': 0});
+        await ref.child('user1').update({'order': 4});
+      });
+    });
   });
 }

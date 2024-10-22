@@ -167,9 +167,14 @@ class FakeQuery implements Query {
 
   @override
   Future<DatabaseEvent> once(
-      [DatabaseEventType eventType = DatabaseEventType.value]) {
-    // TODO: implement once
-    throw UnimplementedError();
+      [DatabaseEventType eventType = DatabaseEventType.value]) async {
+    return switch (eventType) {
+      DatabaseEventType.childAdded => onChildAdded.first,
+      DatabaseEventType.childChanged => onChildChanged.first,
+      DatabaseEventType.childMoved => onChildMoved.first,
+      DatabaseEventType.childRemoved => onChildRemoved.first,
+      DatabaseEventType.value => onValue.first,
+    };
   }
 
   @override
