@@ -13,25 +13,13 @@ class FakeQuery implements Query {
 
   DataSnapshot? _lastSnapshot;
 
-  late final StreamController<DatabaseEvent> _childAddedController;
-  late final StreamController<DatabaseEvent> _childChangedController;
-  late final StreamController<DatabaseEvent> _childMovedController;
-  late final StreamController<DatabaseEvent> _childRemovedController;
-  late final StreamController<DatabaseEvent> _valueController;
+  StreamController<DatabaseEvent>? _childAddedController;
+  StreamController<DatabaseEvent>? _childChangedController;
+  StreamController<DatabaseEvent>? _childMovedController;
+  StreamController<DatabaseEvent>? _childRemovedController;
+  StreamController<DatabaseEvent>? _valueController;
 
-  FakeQuery(this._database, this._path) {
-    _childAddedController = _createStreamController(this);
-    _childChangedController = _createStreamController(this);
-    _childMovedController = _createStreamController(this);
-    _childRemovedController = _createStreamController(this);
-    _valueController = _createStreamController(this);
-  }
-
-  StreamController<DatabaseEvent> _createStreamController(FakeQuery query) {
-    return StreamController<DatabaseEvent>.broadcast(
-      onListen: () => _database._addActiveQuery(query),
-    );
-  }
+  FakeQuery(this._database, this._path);
 
   @override
   Query endAt(Object? value, {String? key}) {
@@ -103,57 +91,78 @@ class FakeQuery implements Query {
   }
 
   @override
-  Stream<DatabaseEvent> get onChildAdded => _childAddedController.stream;
+  Stream<DatabaseEvent> get onChildAdded {
+    _childAddedController ??= _createStreamController();
+    return _childAddedController!.stream;
+  }
 
   @override
-  Stream<DatabaseEvent> get onChildChanged => _childChangedController.stream;
+  Stream<DatabaseEvent> get onChildChanged {
+    _childChangedController ??= _createStreamController();
+    return _childChangedController!.stream;
+  }
 
   @override
-  Stream<DatabaseEvent> get onChildMoved => _childMovedController.stream;
+  Stream<DatabaseEvent> get onChildMoved {
+    _childMovedController ??= _createStreamController();
+    return _childMovedController!.stream;
+  }
 
   @override
-  Stream<DatabaseEvent> get onChildRemoved => _childRemovedController.stream;
+  Stream<DatabaseEvent> get onChildRemoved {
+    _childRemovedController ??= _createStreamController();
+    return _childRemovedController!.stream;
+  }
 
   @override
-  Stream<DatabaseEvent> get onValue => _valueController.stream;
+  Stream<DatabaseEvent> get onValue {
+    _valueController ??= _createStreamController();
+    return _valueController!.stream;
+  }
+
+  StreamController<DatabaseEvent> _createStreamController() {
+    return StreamController<DatabaseEvent>.broadcast(
+      onListen: () => _database._addActiveQuery(this),
+    );
+  }
 
   @visibleForTesting
   void dispose() {
     _database._removeActiveQuery(this);
 
-    _childAddedController.close();
-    _childChangedController.close();
-    _childMovedController.close();
-    _childRemovedController.close();
-    _valueController.close();
+    _childAddedController?.close();
+    _childChangedController?.close();
+    _childMovedController?.close();
+    _childRemovedController?.close();
+    _valueController?.close();
   }
 
   void _triggerChildAdded(DataSnapshot snapshot, String? previousChildKey) {
-    _childAddedController.add(
+    _childAddedController?.add(
       FakeDatabaseEvent.childAdded(snapshot, previousChildKey),
     );
   }
 
   void _triggerChildChanged(DataSnapshot snapshot, String? previousChildKey) {
-    _childChangedController.add(
+    _childChangedController?.add(
       FakeDatabaseEvent.childChanged(snapshot, previousChildKey),
     );
   }
 
   void _triggerChildMoved(DataSnapshot snapshot, String? previousChildKey) {
-    _childMovedController.add(
+    _childMovedController?.add(
       FakeDatabaseEvent.childMoved(snapshot, previousChildKey),
     );
   }
 
   void _triggerChildRemoved(DataSnapshot snapshot) {
-    _childRemovedController.add(
+    _childRemovedController?.add(
       FakeDatabaseEvent.childRemoved(snapshot),
     );
   }
 
   void _triggerValue(DataSnapshot snapshot) {
-    _valueController.add(
+    _valueController?.add(
       FakeDatabaseEvent.value(snapshot),
     );
   }
