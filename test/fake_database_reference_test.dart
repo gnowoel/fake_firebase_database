@@ -126,6 +126,34 @@ void main() {
         });
       });
 
+      test('update() accepts a sub-path to nodes', () async {
+        final ref1 = database.ref('users/123');
+
+        await ref1.set({
+          'name': 'John',
+          'age': 18,
+          'address': {
+            'line1': '100 Mountain View',
+          },
+        });
+
+        final ref2 = database.ref('users');
+
+        await ref2.update({
+          '123/age': 19,
+          '123/address/line1': '1 Mountain View',
+        });
+
+        final snapshot = await ref1.get();
+        expect(snapshot.value, {
+          'name': 'John',
+          'age': 19,
+          'address': {
+            'line1': '1 Mountain View',
+          },
+        });
+      });
+
       test('can remove() data at the root path', () async {
         final ref = database.ref();
 

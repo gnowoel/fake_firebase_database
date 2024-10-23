@@ -78,7 +78,7 @@ class FakeDatabaseReference extends FakeQuery implements DatabaseReference {
     data = _walkThrough(data, parts);
 
     value.forEach((key, val) {
-      data[key] = val;
+      _createValue(data, val, splitPath(key));
     });
 
     _cleanDown(data);
