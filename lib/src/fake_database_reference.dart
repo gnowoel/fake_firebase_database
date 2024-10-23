@@ -50,18 +50,10 @@ class FakeDatabaseReference extends FakeQuery implements DatabaseReference {
   @override
   Future<void> set(Object? value) async {
     final parts = _pathParts;
-    final lastPart = parts.removeLast();
     Map<String, dynamic> data = _database._store;
 
-    for (final part in parts) {
-      if (!data.containsKey(part) || data[part] is! Map<String, dynamic>) {
-        data[part] = <String, dynamic>{};
-      }
-      data = data[part] as Map<String, dynamic>;
-    }
+    _createValue(data, value, parts);
 
-    _cleanDown(value);
-    data[lastPart] = value;
     _cleanUp();
     _database._notifyListeners(this);
   }
@@ -83,20 +75,35 @@ class FakeDatabaseReference extends FakeQuery implements DatabaseReference {
     final parts = _pathParts;
     Map<String, dynamic> data = _database._store;
 
-    for (final part in parts) {
-      if (!data.containsKey(part) || data[part] is! Map<String, dynamic>) {
-        data[part] = <String, dynamic>{};
-      }
-      data = data[part] as Map<String, dynamic>;
-    }
+    data = _walkThrough(data, parts);
 
     value.forEach((key, val) {
       data[key] = val;
     });
 
     _cleanDown(data);
-    _cleanUp();
+    _cleanUp(); // TODO: Clean up separately for each updated entry
     _database._notifyListeners(this);
+  }
+
+  void _createValue(
+      Map<String, dynamic> data, Object? value, List<String> parts) {
+    final lastPart = parts.removeLast();
+
+    data = _walkThrough(data, parts);
+    _cleanDown(value);
+    data[lastPart] = value;
+  }
+
+  Map<String, dynamic> _walkThrough(
+      Map<String, dynamic> data, List<String> parts) {
+    for (final part in parts) {
+      if (!data.containsKey(part) || data[part] is! Map<String, dynamic>) {
+        data[part] = <String, dynamic>{};
+      }
+      data = data[part] as Map<String, dynamic>;
+    }
+    return data;
   }
 
   void _cleanDown(Object? value) {
