@@ -13,16 +13,24 @@ class FakeQuery implements Query {
 
   DataSnapshot? _lastSnapshot;
 
-  final _childAddedController = _createStreamController();
-  final _childChangedController = _createStreamController();
-  final _childMovedController = _createStreamController();
-  final _childRemovedController = _createStreamController();
-  final _valueController = _createStreamController();
+  late final StreamController<DatabaseEvent> _childAddedController;
+  late final StreamController<DatabaseEvent> _childChangedController;
+  late final StreamController<DatabaseEvent> _childMovedController;
+  late final StreamController<DatabaseEvent> _childRemovedController;
+  late final StreamController<DatabaseEvent> _valueController;
 
-  FakeQuery(this._database, this._path);
+  FakeQuery(this._database, this._path) {
+    _childAddedController = _createStreamController(this);
+    _childChangedController = _createStreamController(this);
+    _childMovedController = _createStreamController(this);
+    _childRemovedController = _createStreamController(this);
+    _valueController = _createStreamController(this);
+  }
 
-  static StreamController<DatabaseEvent> _createStreamController() {
-    return StreamController<DatabaseEvent>.broadcast();
+  StreamController<DatabaseEvent> _createStreamController(FakeQuery query) {
+    return StreamController<DatabaseEvent>.broadcast(
+      onListen: () => _database._addActiveQuery(query),
+    );
   }
 
   @override
@@ -95,34 +103,19 @@ class FakeQuery implements Query {
   }
 
   @override
-  Stream<DatabaseEvent> get onChildAdded {
-    _database._addActiveQuery(this);
-    return _childAddedController.stream;
-  }
+  Stream<DatabaseEvent> get onChildAdded => _childAddedController.stream;
 
   @override
-  Stream<DatabaseEvent> get onChildChanged {
-    _database._addActiveQuery(this);
-    return _childChangedController.stream;
-  }
+  Stream<DatabaseEvent> get onChildChanged => _childChangedController.stream;
 
   @override
-  Stream<DatabaseEvent> get onChildMoved {
-    _database._addActiveQuery(this);
-    return _childMovedController.stream;
-  }
+  Stream<DatabaseEvent> get onChildMoved => _childMovedController.stream;
 
   @override
-  Stream<DatabaseEvent> get onChildRemoved {
-    _database._addActiveQuery(this);
-    return _childRemovedController.stream;
-  }
+  Stream<DatabaseEvent> get onChildRemoved => _childRemovedController.stream;
 
   @override
-  Stream<DatabaseEvent> get onValue {
-    _database._addActiveQuery(this);
-    return _valueController.stream;
-  }
+  Stream<DatabaseEvent> get onValue => _valueController.stream;
 
   @visibleForTesting
   void dispose() {
