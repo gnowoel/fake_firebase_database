@@ -41,10 +41,26 @@ class FakeDatabaseReference extends FakeQuery implements DatabaseReference {
 
   @override
   Future<TransactionResult> runTransaction(
-      TransactionHandler transactionHandler,
-      {bool applyLocally = true}) {
-    // TODO: implement runTransaction
-    throw UnimplementedError();
+    TransactionHandler transactionHandler, {
+    bool applyLocally = true,
+  }) async {
+    final s1 = _getSnapshot();
+    final v1 = s1.value;
+
+    try {
+      final transaction = transactionHandler(v1);
+
+      if (transaction.aborted) {
+        return FakeTransactionResult(false, FakeDataSnapshot(ref, v1));
+      }
+
+      final v2 = transaction.value;
+      await set(v2);
+
+      return FakeTransactionResult(true, FakeDataSnapshot(ref, v2));
+    } catch (e) {
+      return FakeTransactionResult(false, FakeDataSnapshot(ref, v1));
+    }
   }
 
   @override

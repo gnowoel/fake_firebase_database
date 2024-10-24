@@ -1,3 +1,4 @@
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:fake_firebase_database/fake_firebase_database.dart';
@@ -379,6 +380,21 @@ void main() {
         final ref2 = ref1.root;
 
         expect(ref2.path, '/');
+      });
+    });
+
+    group('runTransaction()', () {
+      test('can update data in a transaction', () async {
+        final ref = database.ref('counter');
+        await ref.set(5);
+
+        final TransactionResult result = await ref.runTransaction((v1) {
+          final v2 = (v1 as int) + 1;
+          return Transaction.success(v2);
+        });
+
+        expect(result.committed, true);
+        expect(result.snapshot.value, 6);
       });
     });
   });
