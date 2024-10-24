@@ -122,7 +122,10 @@ class FakeQuery implements Query {
 
   StreamController<DatabaseEvent> _createStreamController() {
     return StreamController<DatabaseEvent>.broadcast(
-      onListen: () => _database._addActiveQuery(this),
+      onListen: () {
+        _database._addActiveQuery(this);
+        _notifyListeners(initial: true);
+      },
     );
   }
 
@@ -469,8 +472,8 @@ class FakeQuery implements Query {
     return _lastSnapshot!;
   }
 
-  void _notifyListeners() {
-    final s1 = _getLastSnapshot();
+  void _notifyListeners({bool initial = false}) {
+    final s1 = initial ? FakeDataSnapshot(ref, null) : _getLastSnapshot();
     final s2 = _getSnapshot();
 
     _triggerEvents(s1, s2);

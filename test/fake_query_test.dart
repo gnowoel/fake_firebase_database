@@ -789,6 +789,24 @@ void main() {
         await ref.set({'name1': 'Alice'});
         await ref.set({'name1': 'Alice', 'name2': 'Bob'});
       });
+
+      test('get previous changes on listen', () async {
+        final ref = database.ref('users');
+
+        await ref.set({'name1': 'Alice'});
+
+        expectLater(
+          ref.onValue,
+          emitsInOrder([
+            predicate<DatabaseEvent>(
+                (e) => (e.snapshot.value as Map).length == 1),
+            predicate<DatabaseEvent>(
+                (e) => (e.snapshot.value as Map).length == 2),
+          ]),
+        );
+
+        await ref.set({'name1': 'Alice', 'name2': 'Bob'});
+      });
     });
 
     group('get onChildAdded', () {
@@ -824,6 +842,23 @@ void main() {
 
         await ref.child('user1').set({'name': 'Alice 2'});
         await ref.child('user2').set({'name': 'Bob 2'});
+      });
+
+      test('get previous changes on listen', () async {
+        final ref = database.ref('users');
+
+        await ref.set({'name1': 'Alice', 'name2': 'Bob'});
+
+        expectLater(
+          ref.onChildAdded,
+          emitsInOrder([
+            predicate<DatabaseEvent>((e) => e.snapshot.key == 'name1'),
+            predicate<DatabaseEvent>((e) => e.snapshot.key == 'name2'),
+            predicate<DatabaseEvent>((e) => e.snapshot.key == 'name3'),
+          ]),
+        );
+
+        await ref.update({'name3': 'Charlie'});
       });
     });
 
