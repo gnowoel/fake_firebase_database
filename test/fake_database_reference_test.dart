@@ -384,17 +384,92 @@ void main() {
     });
 
     group('runTransaction()', () {
-      test('can update data in a transaction', () async {
+      test('can update data', () async {
         final ref = database.ref('counter');
         await ref.set(5);
 
-        final TransactionResult result = await ref.runTransaction((v1) {
-          final v2 = (v1 as int) + 1;
-          return Transaction.success(v2);
+        final result = await ref.runTransaction((value) {
+          final newValue = (value as int) + 1;
+          return Transaction.success(newValue);
         });
 
         expect(result.committed, true);
         expect(result.snapshot.value, 6);
+      });
+
+      test('can abort transaction', () async {
+        final ref = database.ref('counter');
+        await ref.set(5);
+
+        final result = await ref.runTransaction((value) {
+          return Transaction.abort();
+        });
+
+        expect(result.committed, false);
+        expect(result.snapshot.value, 5);
+      });
+
+      test('transaction fails when handler throws', () async {
+        final ref = database.ref('counter');
+        await ref.set(5);
+
+        final result = await ref.runTransaction((value) {
+          throw Exception('Simulated error');
+        });
+
+        expect(result.committed, false);
+        expect(result.snapshot.value, 5);
+      });
+
+      test('can handle complex data in transaction', () async {
+        final ref = database.ref('user');
+        await ref.set({
+          'name': 'John',
+          'score': 100,
+        });
+
+        final result = await ref.runTransaction((value) {
+          value = value as Map;
+
+          final newValue = {
+            ...value,
+            'score': (value['score'] as int) + 50,
+          };
+
+          return Transaction.success(newValue);
+        });
+
+        expect(result.committed, true);
+        expect(result.snapshot.value, {
+          'name': 'John',
+          'score': 150,
+        });
+      });
+
+      test('transaction sees the initial data correctly', () async {
+        final ref = database.ref('data');
+        await ref.set({'count': 1});
+
+        final result = await ref.runTransaction((value) {
+          expect(value, {'count': 1});
+          return Transaction.success({'count': 2});
+        });
+
+        expect(result.committed, true);
+        expect(result.snapshot.value, {'count': 2});
+      });
+
+      test('has updated value after successful transaction', () async {
+        final ref = database.ref('data');
+        await ref.set({'count': 1});
+
+        await ref.runTransaction((value) {
+          expect(value, {'count': 1});
+          return Transaction.success({'count': 2});
+        });
+
+        final snapshot = await ref.get();
+        expect(snapshot.value, {'count': 2});
       });
     });
   });
