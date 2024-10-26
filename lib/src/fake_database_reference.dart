@@ -124,9 +124,19 @@ class FakeDatabaseReference extends FakeQuery implements DatabaseReference {
   }
 
   Object? _handleServerValue(Object? oldValue, Object? newValue) {
-    if (_isServerTimestamp(newValue)) {
+    newValue = _handleServerTimestamp(newValue);
+    newValue = _handleServerIncrement(oldValue, newValue);
+    return newValue;
+  }
+
+  Object? _handleServerTimestamp(Object? value) {
+    if (_isServerTimestamp(value)) {
       return DateTime.now().millisecondsSinceEpoch;
     }
+    return value;
+  }
+
+  Object? _handleServerIncrement(Object? oldValue, Object? newValue) {
     if (_isServerIncrement(newValue)) {
       final increment = (newValue as Map)['.sv']['increment'] as num;
       return (oldValue as num) + increment;

@@ -19,17 +19,17 @@ void main() {
         expect(snapshot.value, isA<num>());
         expect(snapshot.value, isNonZero);
       });
+    });
 
-      group('increment', () {
-        test('can increment numbers', () async {
-          final ref = database.ref();
-          await ref.set(4);
+    group('increment', () {
+      test('can increment numbers', () async {
+        final ref = database.ref();
+        await ref.set(4);
 
-          await ref.set(ServerValue.increment(3));
+        await ref.set(ServerValue.increment(3));
 
-          final snapshot = await ref.get();
-          expect(snapshot.value, 7);
-        });
+        final snapshot = await ref.get();
+        expect(snapshot.value, 7);
       });
     });
   });
