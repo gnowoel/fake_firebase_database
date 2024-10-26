@@ -147,7 +147,7 @@ class FakeDatabaseReference extends FakeQuery implements DatabaseReference {
     if (newValue is! Map) return newValue;
 
     if (_isServerIncrement(newValue)) {
-      final increment = (newValue as Map)['.sv']['increment'] as num;
+      final increment = newValue['.sv']['increment'] as num;
       return (oldValue as num) + increment;
     }
 

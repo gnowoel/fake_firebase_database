@@ -79,6 +79,24 @@ void main() {
         final result = snapshot.child('d').value as int;
         expect(result, 7);
       });
+
+      test('can handle transaction with increment', () async {
+        final ref = database.ref('counter');
+        await ref.set(4);
+
+        final result = await ref.runTransaction((value) {
+          final newValue = ServerValue.increment(3);
+          return Transaction.success(newValue);
+        });
+
+        expect(result.committed, true);
+        expect(result.snapshot.value, {
+          '.sv': {'increment': 3}
+        });
+
+        final snapshot = await ref.get();
+        expect(snapshot.value, 7);
+      });
     });
   });
 }
