@@ -124,16 +124,25 @@ class FakeDatabaseReference extends FakeQuery implements DatabaseReference {
   }
 
   Object? _handleServerValue(Object? oldValue, Object? newValue) {
-    if (newValue is Map<String, dynamic>) {
-      if (_isServerTimestamp(newValue)) {
-        return DateTime.now().millisecondsSinceEpoch;
-      }
+    if (_isServerTimestamp(newValue)) {
+      return DateTime.now().millisecondsSinceEpoch;
+    }
+    if (_isServerIncrement(newValue)) {
+      final increment = (newValue as Map)['.sv']['increment'] as num;
+      return (oldValue as num) + increment;
     }
     return newValue;
   }
 
-  bool _isServerTimestamp(Map<String, dynamic> value) {
+  bool _isServerTimestamp(Object? value) {
+    if (value is! Map) return false;
     return value['.sv'] == 'timestamp';
+  }
+
+  bool _isServerIncrement(Object? value) {
+    if (value is! Map) return false;
+    return value['.sv'] is Map &&
+        (value['.sv'] as Map).containsKey('increment');
   }
 
   void _cleanDown(Object? value) {
