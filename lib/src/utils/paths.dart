@@ -4,7 +4,7 @@ List<String> splitPath(String path) {
 
 Object? traverseValue(Object? value, List<String> parts) {
   for (final part in parts) {
-    if (value is Map<String, dynamic> && value.containsKey(part)) {
+    if (value is Map && value.containsKey(part)) {
       value = value[part];
     } else {
       value = null;

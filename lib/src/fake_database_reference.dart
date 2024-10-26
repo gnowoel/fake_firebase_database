@@ -115,7 +115,7 @@ class FakeDatabaseReference extends FakeQuery implements DatabaseReference {
   Map<String, dynamic> _walkThrough(
       Map<String, dynamic> data, List<String> parts) {
     for (final part in parts) {
-      if (!data.containsKey(part) || data[part] is! Map<String, dynamic>) {
+      if (data[part] is! Map || !data.containsKey(part)) {
         data[part] = <String, dynamic>{};
       }
       data = data[part] as Map<String, dynamic>;
@@ -130,9 +130,16 @@ class FakeDatabaseReference extends FakeQuery implements DatabaseReference {
   }
 
   Object? _handleServerTimestamp(Object? value) {
+    if (value is! Map) return value;
+
     if (_isServerTimestamp(value)) {
       return DateTime.now().millisecondsSinceEpoch;
     }
+
+    for (final key in value.keys) {
+      value[key] = _handleServerTimestamp(value[key]);
+    }
+
     return value;
   }
 

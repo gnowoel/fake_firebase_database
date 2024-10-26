@@ -28,6 +28,22 @@ void main() {
         expect(snapshot.value, isA<num>());
         expect(snapshot.value, isNonZero);
       });
+
+      test('can set current timestamp from a nested value', () async {
+        final then = DateTime.now().millisecondsSinceEpoch;
+        final ref = database.ref('a/b/c');
+
+        await ref.set({
+          'd': ServerValue.timestamp as dynamic,
+        });
+
+        final snapshot = await ref.get();
+        final timestamp = snapshot.child('d').value as int;
+
+        expect(timestamp, isA<num>());
+        expect(timestamp, isNonZero);
+        expect(timestamp, greaterThanOrEqualTo(then));
+      });
     });
 
     group('increment()', () {
