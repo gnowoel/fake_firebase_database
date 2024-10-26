@@ -107,6 +107,7 @@ class FakeDatabaseReference extends FakeQuery implements DatabaseReference {
     final lastPart = parts.removeLast();
 
     data = _walkThrough(data, parts);
+    value = _handleServerValue(data[lastPart], value);
     _cleanDown(value);
     data[lastPart] = value;
   }
@@ -120,6 +121,19 @@ class FakeDatabaseReference extends FakeQuery implements DatabaseReference {
       data = data[part] as Map<String, dynamic>;
     }
     return data;
+  }
+
+  Object? _handleServerValue(Object? oldValue, Object? newValue) {
+    if (newValue is Map<String, dynamic>) {
+      if (_isServerTimestamp(newValue)) {
+        return DateTime.now().millisecondsSinceEpoch;
+      }
+    }
+    return newValue;
+  }
+
+  bool _isServerTimestamp(Map<String, dynamic> value) {
+    return value['.sv'] == 'timestamp';
   }
 
   void _cleanDown(Object? value) {
