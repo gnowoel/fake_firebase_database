@@ -144,10 +144,19 @@ class FakeDatabaseReference extends FakeQuery implements DatabaseReference {
   }
 
   Object? _handleServerIncrement(Object? oldValue, Object? newValue) {
+    if (newValue is! Map) return newValue;
+
     if (_isServerIncrement(newValue)) {
       final increment = (newValue as Map)['.sv']['increment'] as num;
       return (oldValue as num) + increment;
     }
+
+    if (oldValue is Map) {
+      for (final key in newValue.keys) {
+        newValue[key] = _handleServerIncrement(oldValue[key], newValue[key]);
+      }
+    }
+
     return newValue;
   }
 

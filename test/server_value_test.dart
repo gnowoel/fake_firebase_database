@@ -66,6 +66,19 @@ void main() {
         final snapshot = await ref.get();
         expect(snapshot.value, 7);
       });
+
+      test('can increment numbers on a deep path', () async {
+        final ref = database.ref('a/b/c');
+        await ref.set({'d': 4});
+
+        await ref.set({
+          'd': ServerValue.increment(3) as dynamic,
+        });
+
+        final snapshot = await ref.get();
+        final result = snapshot.child('d').value as int;
+        expect(result, 7);
+      });
     });
   });
 }
