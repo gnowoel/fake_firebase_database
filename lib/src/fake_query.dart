@@ -1,6 +1,28 @@
 part of '../fake_firebase_database.dart';
 
+typedef Entry = MapEntry<String, dynamic>;
 typedef EntryList = List<MapEntry<String, dynamic>>;
+typedef PairList = List<Pair>;
+
+class Pair {
+  final Entry entry;
+  final Object? filter;
+
+  Pair({
+    required this.entry,
+    required this.filter,
+  });
+
+  Pair copyWith({
+    Entry? entry,
+    Object? filter,
+  }) {
+    return Pair(
+      entry: entry ?? this.entry,
+      filter: filter ?? this.filter,
+    );
+  }
+}
 
 class FakeQuery implements Query {
   final FakeFirebaseDatabase _database;
@@ -234,127 +256,133 @@ class FakeQuery implements Query {
   }
 
   EntryList _applyQuery(EntryList entries) {
+    PairList pairs = entries.map((entry) {
+      return Pair(entry: entry, filter: null);
+    }).toList();
+
+    if (_order == null) {
+      orderByKey();
+    }
+
     if (_order != null) {
-      entries = _applyOrder(entries);
+      pairs = _applyOrder(pairs);
     }
 
     if (_start != null) {
-      entries = _applyStart(entries);
+      pairs = _applyStart(pairs);
     }
 
     if (_end != null) {
-      entries = _applyEnd(entries);
+      pairs = _applyEnd(pairs);
     }
 
     if (_limit != null) {
-      entries = _applyLimit(entries);
+      pairs = _applyLimit(pairs);
     }
 
-    return entries;
+    return pairs.map((pair) => pair.entry).toList();
   }
 
-  EntryList _applyOrder(EntryList entries) {
+  PairList _applyOrder(PairList pairs) {
     return switch (_order!['type']) {
-      'byChild' => _applyOrderByChild(entries),
-      'byKey' => _applyOrderByKey(entries),
-      'byValue' => _applyOrderByValue(entries),
-      _ => entries,
+      'byChild' => _applyOrderByChild(pairs),
+      'byKey' => _applyOrderByKey(pairs),
+      'byValue' => _applyOrderByValue(pairs),
+      _ => pairs,
     };
   }
 
-  EntryList _applyOrderByChild(EntryList entries) {
-    entries.sort((a, b) {
-      final path = _order!['params']['path'];
-      final parts = splitPath(path);
-      final v1 = traverseValue(a.value, parts);
-      final v2 = traverseValue(b.value, parts);
+  PairList _applyOrderByChild(PairList pairs) {
+    final path = _order!['params']['path'];
+    final parts = splitPath(path);
 
-      return _compareValues(v1, v2);
-    });
+    pairs = pairs.map((pair) {
+      return pair.copyWith(filter: traverseValue(pair.entry.value, parts));
+    }).toList();
 
-    return entries;
+    pairs.sort((a, b) => _compareValues(a.filter, b.filter));
+
+    return pairs;
   }
 
-  EntryList _applyOrderByKey(EntryList entries) {
-    entries.sort((a, b) {
-      final v1 = a.key;
-      final v2 = b.key;
+  PairList _applyOrderByKey(PairList pairs) {
+    pairs = pairs.map((pair) {
+      return pair.copyWith(filter: pair.entry.key);
+    }).toList();
 
-      return _compareValues(v1, v2);
-    });
+    pairs.sort((a, b) => _compareValues(a.filter, b.filter));
 
-    return entries;
+    return pairs;
   }
 
-  EntryList _applyOrderByValue(EntryList entries) {
-    entries.sort((a, b) {
-      final v1 = a.value;
-      final v2 = b.value;
+  PairList _applyOrderByValue(PairList pairs) {
+    pairs = pairs.map((pair) {
+      return pair.copyWith(filter: pair.entry.value);
+    }).toList();
 
-      return _compareValues(v1, v2);
-    });
+    pairs.sort((a, b) => _compareValues(a.filter, b.filter));
 
-    return entries;
+    return pairs;
   }
 
-  EntryList _applyStart(EntryList entries) {
+  PairList _applyStart(PairList pairs) {
     return switch (_start!['type']) {
-      'at' => _applyStartAt(entries),
-      'after' => _applyStartAfter(entries),
-      _ => entries,
+      'at' => _applyStartAt(pairs),
+      'after' => _applyStartAfter(pairs),
+      _ => pairs,
     };
   }
 
-  EntryList _applyStartAt(EntryList entries) {
+  PairList _applyStartAt(PairList pairs) {
     final params = _start!['params'] as Map<String, dynamic>;
     return _applyBounds(
-      entries,
+      pairs,
       direction: 'start',
       inclusive: true,
       params: params,
     );
   }
 
-  EntryList _applyStartAfter(EntryList entries) {
+  PairList _applyStartAfter(PairList pairs) {
     final params = _start!['params'] as Map<String, dynamic>;
     return _applyBounds(
-      entries,
+      pairs,
       direction: 'start',
       inclusive: false,
       params: params,
     );
   }
 
-  EntryList _applyEnd(EntryList entries) {
+  PairList _applyEnd(PairList pairs) {
     return switch (_end!['type']) {
-      'at' => _applyEndAt(entries),
-      'before' => _applyEndBefore(entries),
-      _ => entries,
+      'at' => _applyEndAt(pairs),
+      'before' => _applyEndBefore(pairs),
+      _ => pairs,
     };
   }
 
-  EntryList _applyEndAt(EntryList entries) {
+  PairList _applyEndAt(PairList pairs) {
     final params = _end!['params'] as Map<String, dynamic>;
     return _applyBounds(
-      entries,
+      pairs,
       direction: 'end',
       inclusive: true,
       params: params,
     );
   }
 
-  EntryList _applyEndBefore(EntryList entries) {
+  PairList _applyEndBefore(PairList pair) {
     final params = _end!['params'] as Map<String, dynamic>;
     return _applyBounds(
-      entries,
+      pair,
       direction: 'end',
       inclusive: false,
       params: params,
     );
   }
 
-  EntryList _applyBounds(
-    EntryList entries, {
+  PairList _applyBounds(
+    PairList pairs, {
     required String direction,
     required bool inclusive,
     required Map<String, dynamic> params,
@@ -363,58 +391,39 @@ class FakeQuery implements Query {
     final k = params['key'];
     final d = direction;
     final i = inclusive;
+
+    // Always inclusive when `key` is available
     final ki = k != null || i;
 
-    if (_order == null) {
-      entries = _applyOrderByKey(entries);
-    }
-
-    if (_order!['type'] == 'byKey') {
-      entries = entries.where((entry) {
-        return _compareBounds(entry.key, v, d, ki);
-      }).toList();
-    }
-
-    if (_order!['type'] == 'byValue') {
-      entries = entries.where((entry) {
-        return _compareBounds(entry.value, v, d, ki);
-      }).toList();
-    }
-
-    if (_order!['type'] == 'byChild') {
-      entries = entries.where((entry) {
-        final path = _order!['params']['path'];
-        final parts = splitPath(path);
-        final value = traverseValue(entry.value, parts);
-        return _compareBounds(value, v, d, ki);
-      }).toList();
-    }
+    pairs = pairs.where((pair) {
+      return _compareBounds(pair.filter, v, d, ki);
+    }).toList();
 
     if (k != null) {
-      entries = entries.where((entry) {
-        return _compareBounds(entry.key, k, d, i);
+      pairs = pairs.where((pair) {
+        return _compareBounds(pair.entry.key, k, d, i);
       }).toList();
     }
 
-    return entries;
+    return pairs;
   }
 
-  EntryList _applyLimit(EntryList entries) {
+  PairList _applyLimit(PairList pairs) {
     return switch (_limit!['type']) {
-      'toFirst' => _applyLimitToFirst(entries),
-      'toLast' => _applyLimitToLast(entries),
-      _ => entries,
+      'toFirst' => _applyLimitToFirst(pairs),
+      'toLast' => _applyLimitToLast(pairs),
+      _ => pairs,
     };
   }
 
-  EntryList _applyLimitToFirst(EntryList entries) {
+  PairList _applyLimitToFirst(PairList pairs) {
     final limit = _limit!['params']['limit'] as int;
-    return entries.take(limit).toList();
+    return pairs.take(limit).toList();
   }
 
-  EntryList _applyLimitToLast(EntryList entries) {
+  PairList _applyLimitToLast(PairList pairs) {
     final limit = _limit!['params']['limit'] as int;
-    return entries.reversed.take(limit).toList().reversed.toList();
+    return pairs.reversed.take(limit).toList().reversed.toList();
   }
 
   bool _compareBounds(

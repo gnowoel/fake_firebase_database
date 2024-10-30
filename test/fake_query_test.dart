@@ -645,7 +645,7 @@ void main() {
 
         expect(children.length, 3);
         expect(children[0].child('name').value, 'Alice');
-        expect(children[1].child('name').value, 'Bob');
+        expect(children[1].child('name').value, 'David');
         expect(children[2].child('name').value, 'Charlie');
       });
 
@@ -718,7 +718,7 @@ void main() {
 
         expect(children.length, 3);
         expect(children[0].child('name').value, 'Charlie');
-        expect(children[1].child('name').value, 'David');
+        expect(children[1].child('name').value, 'Bob');
         expect(children[2].child('name').value, 'Eve');
       });
 
