@@ -300,7 +300,7 @@ class FakeQuery implements Query {
       return pair.copyWith(filter: traverseValue(pair.entry.value, parts));
     }).toList();
 
-    pairs.sort((a, b) => _compareValues(a.filter, b.filter));
+    pairs.sort((a, b) => _compareValues(a, b));
 
     return pairs;
   }
@@ -310,7 +310,7 @@ class FakeQuery implements Query {
       return pair.copyWith(filter: pair.entry.key);
     }).toList();
 
-    pairs.sort((a, b) => _compareValues(a.filter, b.filter));
+    pairs.sort((a, b) => _compareObjects(a.filter, b.filter));
 
     return pairs;
   }
@@ -320,7 +320,7 @@ class FakeQuery implements Query {
       return pair.copyWith(filter: pair.entry.value);
     }).toList();
 
-    pairs.sort((a, b) => _compareValues(a.filter, b.filter));
+    pairs.sort((a, b) => _compareValues(a, b));
 
     return pairs;
   }
@@ -434,14 +434,52 @@ class FakeQuery implements Query {
   ) {
     final d = direction;
     final i = inclusive;
-    final c = _compareValues(v1, v2);
+    final c = _compareObjects(v1, v2);
     return d == 'start' ? (i ? c >= 0 : c > 0) : (i ? c <= 0 : c < 0);
   }
 
-  int _compareValues(Object? v1, Object? v2) {
+  int _compareValues(Pair p1, Pair p2) {
+    final f1 = p1.filter;
+    final f2 = p2.filter;
+    final k1 = p1.entry.key;
+    final k2 = p2.entry.key;
+
+    if (f1 == f2) {
+      return k1.compareTo(k2);
+    }
+
+    if (f1 == null) return -1;
+    if (f2 == null) return 1;
+
+    if (f1 == false) return -1;
+    if (f2 == false) return 1;
+
+    if (f1 == true) return -1;
+    if (f2 == true) return 1;
+
+    if (f1 is num && f2 is! num) return -1;
+    if (f1 is! num && f2 is num) return 1;
+    if (f1 is num && f2 is num) {
+      return f1.compareTo(f2);
+    }
+
+    if (f1 is String && f2 is! String) return -1;
+    if (f1 is! String && f2 is String) return 1;
+    if (f1 is String && f2 is String) {
+      return f1.compareTo(f2);
+    }
+
+    return k1.compareTo(k2);
+  }
+
+  int _compareObjects(Object? v1, Object? v2) {
     if (v1 == null && v2 == null) return 0;
     if (v1 == null) return -1;
     if (v2 == null) return 1;
+
+    if (v1 is bool && v2 is bool) {
+      return v1 == v2 ? 0 : (v1 ? 1 : -1);
+    }
 
     if (v1 is num && v2 is num) {
       return v1.compareTo(v2);
@@ -449,10 +487,6 @@ class FakeQuery implements Query {
 
     if (v1 is String && v2 is String) {
       return v1.compareTo(v2);
-    }
-
-    if (v1 is bool && v2 is bool) {
-      return v1 == v2 ? 0 : (v1 ? 1 : -1);
     }
 
     if (v1 is Comparable && v2 is Comparable) {

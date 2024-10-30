@@ -141,12 +141,12 @@ void main() {
         final children = snapshot.children.toList();
 
         expect(children.length, 3);
-        expect(children[0].key, 'player4');
-        expect(children[0].value, 100);
-        expect(children[1].key, 'player3');
-        expect(children[1].value, 'high');
-        expect(children[2].key, 'player2');
-        expect(children[2].value, true);
+        expect(children[0].key, 'player2');
+        expect(children[0].value, true);
+        expect(children[1].key, 'player4');
+        expect(children[1].value, 100);
+        expect(children[2].key, 'player3');
+        expect(children[2].value, 'high');
       });
     });
 
