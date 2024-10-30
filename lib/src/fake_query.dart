@@ -442,15 +442,8 @@ class FakeQuery implements Query {
   }
 
   int _compareKeys(String k1, String k2) {
-    int? i1;
-    int? i2;
-
-    try {
-      i1 = int.parse(k1);
-      i2 = int.parse(k2);
-    } catch (e) {
-      // Ignore
-    }
+    int? i1 = int.tryParse(k1);
+    int? i2 = int.tryParse(k2);
 
     if (i1 != null && i2 != null) {
       if (i1 != i2) {
