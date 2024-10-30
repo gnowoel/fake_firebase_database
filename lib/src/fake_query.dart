@@ -310,7 +310,7 @@ class FakeQuery implements Query {
       return pair.copyWith(filter: pair.entry.key);
     }).toList();
 
-    pairs.sort((a, b) => _compareObjects(a.filter, b.filter));
+    pairs.sort((a, b) => _compareKeys(a.entry.key, b.entry.key));
 
     return pairs;
   }
@@ -436,6 +436,26 @@ class FakeQuery implements Query {
     final i = inclusive;
     final c = _compareObjects(v1, v2);
     return d == 'start' ? (i ? c >= 0 : c > 0) : (i ? c <= 0 : c < 0);
+  }
+
+  int _compareKeys(String k1, String k2) {
+    int? i1;
+    int? i2;
+
+    try {
+      i1 = int.parse(k1);
+      i2 = int.parse(k2);
+    } catch (e) {
+      // Ignore
+    }
+
+    if (i1 != null && i2 != null) {
+      if (i1 != i2) {
+        return i1.compareTo(i2);
+      }
+    }
+
+    return k1.compareTo(k2);
   }
 
   int _compareValues(Pair p1, Pair p2) {

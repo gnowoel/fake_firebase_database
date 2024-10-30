@@ -92,6 +92,7 @@ void main() {
           'c': {'name': 'Charlie'},
           'a': {'name': 'Alice'},
           'b': {'name': 'Bob'},
+          '3': {'name': 'David'}
         });
       });
 
@@ -100,10 +101,11 @@ void main() {
         final snapshot = await query.get();
         final children = snapshot.children.toList();
 
-        expect(children.length, 3);
-        expect(children[0].key, 'a');
-        expect(children[1].key, 'b');
-        expect(children[2].key, 'c');
+        expect(children.length, 4);
+        expect(children[0].key, '3');
+        expect(children[1].key, 'a');
+        expect(children[2].key, 'b');
+        expect(children[3].key, 'c');
       });
     });
 
