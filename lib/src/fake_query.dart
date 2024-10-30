@@ -434,7 +434,10 @@ class FakeQuery implements Query {
   ) {
     final d = direction;
     final i = inclusive;
-    final c = _compareObjects(v1, v2);
+    final c = _compareObjects(v1, v2, fallback: () {
+      if (v1 == v2) return 0;
+      return v1.toString().compareTo(v2.toString());
+    });
     return d == 'start' ? (i ? c >= 0 : c > 0) : (i ? c <= 0 : c < 0);
   }
 
@@ -464,60 +467,40 @@ class FakeQuery implements Query {
     final k1 = p1.entry.key;
     final k2 = p2.entry.key;
 
-    if (f1 == f2) {
-      return k1.compareTo(k2);
-    }
-
-    if (f1 == null) return -1;
-    if (f2 == null) return 1;
-
-    if (f1 == false) return -1;
-    if (f2 == false) return 1;
-
-    if (f1 == true) return -1;
-    if (f2 == true) return 1;
-
-    if (f1 is num && f2 is! num) return -1;
-    if (f1 is! num && f2 is num) return 1;
-    if (f1 is num && f2 is num) {
-      return f1.compareTo(f2);
-    }
-
-    if (f1 is String && f2 is! String) return -1;
-    if (f1 is! String && f2 is String) return 1;
-    if (f1 is String && f2 is String) {
-      return f1.compareTo(f2);
-    }
-
-    return k1.compareTo(k2);
+    return _compareObjects(f1, f2, fallback: () => k1.compareTo(k2));
   }
 
-  int _compareObjects(Object? v1, Object? v2) {
-    if (v1 == null && v2 == null) return 0;
-    if (v1 == null) return -1;
-    if (v2 == null) return 1;
-
-    if (v1 is bool && v2 is bool) {
-      return v1 == v2 ? 0 : (v1 ? 1 : -1);
+  int _compareObjects(
+    Object? o1,
+    Object? o2, {
+    required int Function() fallback,
+  }) {
+    if (o1 == o2) {
+      return fallback();
     }
 
-    if (v1 is num && v2 is num) {
-      return v1.compareTo(v2);
+    if (o1 == null) return -1;
+    if (o2 == null) return 1;
+
+    if (o1 == false) return -1;
+    if (o2 == false) return 1;
+
+    if (o1 == true) return -1;
+    if (o2 == true) return 1;
+
+    if (o1 is num && o2 is! num) return -1;
+    if (o1 is! num && o2 is num) return 1;
+    if (o1 is num && o2 is num) {
+      return o1.compareTo(o2);
     }
 
-    if (v1 is String && v2 is String) {
-      return v1.compareTo(v2);
+    if (o1 is String && o2 is! String) return -1;
+    if (o1 is! String && o2 is String) return 1;
+    if (o1 is String && o2 is String) {
+      return o1.compareTo(o2);
     }
 
-    if (v1 is Comparable && v2 is Comparable) {
-      try {
-        return v1.compareTo(v2);
-      } catch (e) {
-        // Ignore
-      }
-    }
-
-    return v1.toString().compareTo(v2.toString());
+    return fallback();
   }
 
   List<String> get _pathParts {
