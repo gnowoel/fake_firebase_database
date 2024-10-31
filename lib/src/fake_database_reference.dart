@@ -1,6 +1,8 @@
 part of '../fake_firebase_database.dart';
 
 class FakeDatabaseReference extends FakeQuery implements DatabaseReference {
+  FakeOnDisconnect? _onDisconnect;
+
   FakeDatabaseReference(super._database, super._path);
 
   @override
@@ -14,8 +16,7 @@ class FakeDatabaseReference extends FakeQuery implements DatabaseReference {
 
   @override
   OnDisconnect onDisconnect() {
-    // TODO: implement onDisconnect
-    throw UnimplementedError();
+    return _onDisconnect ??= FakeOnDisconnect(this);
   }
 
   @override

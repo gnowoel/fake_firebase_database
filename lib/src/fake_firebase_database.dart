@@ -3,6 +3,7 @@ part of '../fake_firebase_database.dart';
 class FakeFirebaseDatabase implements FirebaseDatabase {
   final Map<String, dynamic> _store = {};
   final Set<FakeQuery> _activeQueries = {};
+  final Set<FakeDatabaseReference> _onDisconnectReferences = {};
   bool _isOnline = true;
 
   @override
@@ -22,6 +23,7 @@ class FakeFirebaseDatabase implements FirebaseDatabase {
 
   @override
   Future<void> goOffline() async {
+    await _runOnDisconnectActions();
     _isOnline = false;
   }
 
@@ -109,5 +111,20 @@ class FakeFirebaseDatabase implements FirebaseDatabase {
     if (!_isOnline) {
       throw Exception('Database is offline');
     }
+  }
+
+  void _addOnDisconnectReferences(FakeDatabaseReference ref) {
+    _onDisconnectReferences.add(ref);
+  }
+
+  Future<void> _runOnDisconnectActions() async {
+    for (final ref in _onDisconnectReferences) {
+      final onDisconnect = ref.onDisconnect() as FakeOnDisconnect;
+      for (final action in onDisconnect._actions) {
+        await action();
+      }
+      onDisconnect.cancel();
+    }
+    _onDisconnectReferences.clear();
   }
 }

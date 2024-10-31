@@ -1,22 +1,30 @@
 part of '../fake_firebase_database.dart';
 
 class FakeOnDisconnect implements OnDisconnect {
+  final FakeDatabaseReference _ref;
+  final List<Future<void> Function()> _actions = [];
+
+  FakeOnDisconnect(this._ref);
+
   @override
-  Future<void> cancel() {
-    // TODO: implement cancel
-    throw UnimplementedError();
+  Future<void> cancel() async {
+    _actions.clear();
   }
 
   @override
-  Future<void> remove() {
-    // TODO: implement remove
-    throw UnimplementedError();
+  Future<void> remove() async {
+    _actions.add(() async {
+      await _ref.remove();
+    });
+    _registerRef();
   }
 
   @override
-  Future<void> set(Object? value) {
-    // TODO: implement set
-    throw UnimplementedError();
+  Future<void> set(Object? value) async {
+    _actions.add(() async {
+      await _ref.set(value);
+    });
+    _registerRef();
   }
 
   @override
@@ -26,8 +34,14 @@ class FakeOnDisconnect implements OnDisconnect {
   }
 
   @override
-  Future<void> update(Map<String, Object?> value) {
-    // TODO: implement update
-    throw UnimplementedError();
+  Future<void> update(Map<String, Object?> value) async {
+    _actions.add(() async {
+      await _ref.update(value);
+    });
+    _registerRef();
+  }
+
+  void _registerRef() {
+    _ref._database._addOnDisconnectReferences(_ref);
   }
 }
