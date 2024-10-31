@@ -64,7 +64,7 @@ class FakeFirebaseDatabase implements FirebaseDatabase {
 
   @override
   void setPersistenceEnabled(bool enabled) {
-    // TODO: implement setPersistenceEnabled
+    // No-op for fake implementation
   }
 
   @override
