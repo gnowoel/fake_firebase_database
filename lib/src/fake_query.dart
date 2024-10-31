@@ -68,7 +68,9 @@ class FakeQuery implements Query {
 
   @override
   Future<DataSnapshot> get() async {
-    return _getSnapshot();
+    return _guardedOperation(() async {
+      return _getSnapshot();
+    });
   }
 
   DataSnapshot _getSnapshot() {
@@ -195,13 +197,15 @@ class FakeQuery implements Query {
   @override
   Future<DatabaseEvent> once(
       [DatabaseEventType eventType = DatabaseEventType.value]) async {
-    return switch (eventType) {
-      DatabaseEventType.childAdded => onChildAdded.first,
-      DatabaseEventType.childChanged => onChildChanged.first,
-      DatabaseEventType.childMoved => onChildMoved.first,
-      DatabaseEventType.childRemoved => onChildRemoved.first,
-      DatabaseEventType.value => onValue.first,
-    };
+    return _guardedOperation(() async {
+      return switch (eventType) {
+        DatabaseEventType.childAdded => onChildAdded.first,
+        DatabaseEventType.childChanged => onChildChanged.first,
+        DatabaseEventType.childMoved => onChildMoved.first,
+        DatabaseEventType.childRemoved => onChildRemoved.first,
+        DatabaseEventType.value => onValue.first,
+      };
+    });
   }
 
   @override
@@ -601,5 +605,10 @@ class FakeQuery implements Query {
     } else {
       return a == b;
     }
+  }
+
+  Future<T> _guardedOperation<T>(Future<T> Function() operation) async {
+    _database._checkOnlineState();
+    return operation();
   }
 }

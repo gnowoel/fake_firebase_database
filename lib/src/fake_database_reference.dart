@@ -65,13 +65,15 @@ class FakeDatabaseReference extends FakeQuery implements DatabaseReference {
 
   @override
   Future<void> set(Object? value) async {
-    final parts = _pathParts;
-    Map<String, dynamic> data = _database._store;
+    return _guardedOperation(() async {
+      final parts = _pathParts;
+      Map<String, dynamic> data = _database._store;
 
-    _createValue(data, value, parts);
+      _createValue(data, value, parts);
 
-    _cleanUp();
-    _database._notifyListeners(this);
+      _cleanUp();
+      _database._notifyListeners(this);
+    });
   }
 
   @override
@@ -88,18 +90,20 @@ class FakeDatabaseReference extends FakeQuery implements DatabaseReference {
 
   @override
   Future<void> update(Map<String, Object?> value) async {
-    final parts = _pathParts;
-    Map<String, dynamic> data = _database._store;
+    return _guardedOperation(() async {
+      final parts = _pathParts;
+      Map<String, dynamic> data = _database._store;
 
-    data = _walkThrough(data, parts);
+      data = _walkThrough(data, parts);
 
-    value.forEach((key, val) {
-      _createValue(data, val, splitPath(key));
+      value.forEach((key, val) {
+        _createValue(data, val, splitPath(key));
+      });
+
+      _cleanDown(data);
+      _cleanUp(); // TODO: Clean up separately for each updated entry
+      _database._notifyListeners(this);
     });
-
-    _cleanDown(data);
-    _cleanUp(); // TODO: Clean up separately for each updated entry
-    _database._notifyListeners(this);
   }
 
   void _createValue(

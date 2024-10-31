@@ -3,6 +3,7 @@ part of '../fake_firebase_database.dart';
 class FakeFirebaseDatabase implements FirebaseDatabase {
   final Map<String, dynamic> _store = {};
   final Set<FakeQuery> _activeQueries = {};
+  bool _isOnline = true;
 
   @override
   String? databaseURL;
@@ -20,15 +21,13 @@ class FakeFirebaseDatabase implements FirebaseDatabase {
   }
 
   @override
-  Future<void> goOffline() {
-    // TODO: implement goOffline
-    throw UnimplementedError();
+  Future<void> goOffline() async {
+    _isOnline = false;
   }
 
   @override
-  Future<void> goOnline() {
-    // TODO: implement goOnline
-    throw UnimplementedError();
+  Future<void> goOnline() async {
+    _isOnline = true;
   }
 
   @override
@@ -73,6 +72,19 @@ class FakeFirebaseDatabase implements FirebaseDatabase {
     // TODO: implement useDatabaseEmulator
   }
 
+  @visibleForTesting
+  bool get isOnline => _isOnline;
+
+  @visibleForTesting
+  void clear() {
+    for (final query in _queries) {
+      query.dispose();
+    }
+
+    _activeQueries.clear();
+    _store.clear();
+  }
+
   void _addActiveQuery(FakeQuery query) {
     _activeQueries.add(query);
   }
@@ -89,17 +101,13 @@ class FakeFirebaseDatabase implements FirebaseDatabase {
     }
   }
 
-  @visibleForTesting
-  void clear() {
-    for (final query in _queries) {
-      query.dispose();
-    }
-
-    _activeQueries.clear();
-    _store.clear();
-  }
-
   List<FakeQuery> get _queries {
     return _activeQueries.toList(); // To avoid concurrent modification
+  }
+
+  void _checkOnlineState() {
+    if (!_isOnline) {
+      throw Exception('Database is offline');
+    }
   }
 }

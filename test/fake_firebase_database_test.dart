@@ -37,5 +37,26 @@ void main() {
       expect(ref, isA<DatabaseReference>());
       expect(ref.path, '/users/123');
     });
+
+    group('goOnline() / goOffline()', () {
+      test('operations fail when database is offline', () async {
+        final ref = database.ref('test');
+        await database.goOffline();
+
+        expect(ref.set({'key': 'value'}), throwsA(isA<Exception>()));
+        expect(database.isOnline, false);
+      });
+
+      test('operations succeed when database is online', () async {
+        final ref = database.ref('test');
+        await database.goOffline();
+        await database.goOnline();
+
+        await ref.set({'key': 'value'});
+        final snapshot = await ref.get();
+        expect(snapshot.value, {'key': 'value'});
+        expect(database.isOnline, true);
+      });
+    });
   });
 }
