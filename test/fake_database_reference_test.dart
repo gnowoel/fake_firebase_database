@@ -476,9 +476,7 @@ void main() {
     group('priority-related', () {
       test('can set priority', () async {
         final ref = database.ref('users/user1');
-        await ref.set(<String, dynamic>{
-          'name': 'Alice',
-        });
+        await ref.set(<String, dynamic>{'name': 'Alice'});
         await ref.setPriority(100);
 
         final snapshot = await ref.get();
@@ -487,12 +485,28 @@ void main() {
 
       test('can set with priority', () async {
         final ref = database.ref('users/user1');
-        await ref.setWithPriority(<String, dynamic>{
-          'name': 'Alice',
-        }, 100);
+        await ref.setWithPriority(<String, dynamic>{'name': 'Alice'}, 100);
 
         final snapshot = await ref.get();
         expect(snapshot.priority, 100);
+      });
+
+      test('can order by priority', () async {
+        final ref = database.ref('users');
+        await ref.set({
+          'user1': <String, dynamic>{'name': 'Alice', '.priority': 100},
+          'user2': <String, dynamic>{'name': 'Bob', '.priority': 50},
+          'user3': <String, dynamic>{'name': 'Charlie', '.priority': 150},
+        });
+
+        final query = ref.orderByPriority();
+        final snapshot = await query.get();
+        final children = snapshot.children.toList();
+
+        expect(children.length, 3);
+        expect(children[0].child('name').value, 'Bob');
+        expect(children[1].child('name').value, 'Alice');
+        expect(children[2].child('name').value, 'Charlie');
       });
     });
   });

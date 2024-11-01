@@ -230,8 +230,8 @@ class FakeQuery implements Query {
 
   @override
   Query orderByPriority() {
-    // TODO: implement orderByPriority
-    throw UnimplementedError();
+    _order = {'type': 'byPriority', 'params': null};
+    return this;
   }
 
   @override
@@ -297,6 +297,7 @@ class FakeQuery implements Query {
       'byChild' => _applyOrderByChild(pairs),
       'byKey' => _applyOrderByKey(pairs),
       'byValue' => _applyOrderByValue(pairs),
+      'byPriority' => _applyOrderByPriority(pairs),
       _ => pairs,
     };
   }
@@ -327,6 +328,19 @@ class FakeQuery implements Query {
   PairList _applyOrderByValue(PairList pairs) {
     pairs = pairs.map((pair) {
       return pair.copyWith(filter: pair.entry.value);
+    }).toList();
+
+    pairs.sort((a, b) => _compareValues(a, b));
+
+    return pairs;
+  }
+
+  PairList _applyOrderByPriority(PairList pairs) {
+    const path = '.priority';
+    final parts = splitPath(path);
+
+    pairs = pairs.map((pair) {
+      return pair.copyWith(filter: traverseValue(pair.entry.value, parts));
     }).toList();
 
     pairs.sort((a, b) => _compareValues(a, b));
