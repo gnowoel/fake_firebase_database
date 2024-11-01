@@ -533,6 +533,21 @@ void main() {
         expect(children[1].child('name').value, 'Alice');
         expect(children[2].child('name').value, 'Charlie');
       });
+
+      test('setPriority() throws on invalid priority type', () async {
+        final ref = database.ref('test');
+        expect(() => ref.setPriority(true), throwsAssertionError);
+        expect(() => ref.setPriority([]), throwsAssertionError);
+        expect(() => ref.setPriority({}), throwsAssertionError);
+      });
+
+      test('setWithPriority() throws on invalid priority type', () async {
+        final ref = database.ref('test');
+        final value = {'key': 'value'};
+        expect(() => ref.setWithPriority(value, true), throwsAssertionError);
+        expect(() => ref.setWithPriority(value, []), throwsAssertionError);
+        expect(() => ref.setWithPriority(value, {}), throwsAssertionError);
+      });
     });
   });
 }

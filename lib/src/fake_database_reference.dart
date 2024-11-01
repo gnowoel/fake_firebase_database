@@ -79,6 +79,7 @@ class FakeDatabaseReference extends FakeQuery implements DatabaseReference {
 
   @override
   Future<void> setPriority(Object? priority) {
+    assert(priority == null || priority is String || priority is num);
     return _guardedOperation(() async {
       final parts = _pathParts;
       Map<String, dynamic> data = _database._store;
@@ -92,6 +93,7 @@ class FakeDatabaseReference extends FakeQuery implements DatabaseReference {
 
   @override
   Future<void> setWithPriority(Object? value, Object? priority) {
+    assert(priority == null || priority is String || priority is num);
     return _guardedOperation(() async {
       final parts = _pathParts;
       Map<String, dynamic> data = _database._store;
