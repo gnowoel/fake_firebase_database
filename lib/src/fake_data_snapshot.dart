@@ -26,7 +26,14 @@ class FakeDataSnapshot implements DataSnapshot {
   Iterable<DataSnapshot> get children {
     if (_value is Map) {
       return _value.entries.map((entry) {
-        return FakeDataSnapshot(_ref.child(entry.key), entry.value);
+        final data = entry.value;
+
+        if (data is Map && data.containsKey('.priority')) {
+          final priority = data.remove('.priority');
+          return FakeDataSnapshot(_ref.child(entry.key), data, priority);
+        }
+
+        return FakeDataSnapshot(_ref.child(entry.key), data);
       });
     }
     return [];

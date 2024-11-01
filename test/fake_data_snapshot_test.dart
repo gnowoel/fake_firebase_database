@@ -187,6 +187,25 @@ void main() {
 
         expect(snapshot.children, isEmpty);
       });
+
+      test('returns children including priorities', () async {
+        final ref = database.ref('users');
+
+        final value1 = {'name': 'John', 'age': 30};
+        final value2 = {'name': 'Jane', 'age': 25};
+
+        ref.child('user1').setWithPriority({...value1}, 1);
+        ref.child('user2').setWithPriority({...value2}, 2);
+
+        final snapshot = await ref.get();
+        final children = snapshot.children.toList();
+
+        expect(children.length, 2);
+        expect(children[0].value, value1);
+        expect(children[0].priority, 1);
+        expect(children[1].value, value2);
+        expect(children[1].priority, 2);
+      });
     });
 
     group('hasChild()', () {
