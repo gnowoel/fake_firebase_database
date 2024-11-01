@@ -65,6 +65,20 @@ void main() {
         final childSnapshot = snapshot.child('123/name');
         expect(childSnapshot.value, 'John');
       });
+
+      test('returns a new DataSnapshot including priority', () async {
+        final ref1 = database.ref('users/123');
+        final value = <String, dynamic>{'name': 'John', 'age': 30};
+
+        await ref1.setWithPriority(value, 100);
+
+        final ref2 = database.ref('users');
+        final snapshot1 = await ref2.get();
+        final snapshot2 = snapshot1.child('123');
+
+        expect(snapshot2.value, {'name': 'John', 'age': 30});
+        expect(snapshot2.priority, 100);
+      });
     });
 
     group('get exists', () {

@@ -14,6 +14,11 @@ class FakeDataSnapshot implements DataSnapshot {
 
     data = traverseValue(data, parts);
 
+    if (data is Map && data.containsKey('.priority')) {
+      final priority = data.remove('.priority');
+      return FakeDataSnapshot(ref.child(path), data, priority);
+    }
+
     return FakeDataSnapshot(_ref.child(path), data);
   }
 
