@@ -87,6 +87,11 @@ class FakeQuery implements Query {
 
     data = _deepCopy(data);
 
+    if (data is Map && data.containsKey('.priority')) {
+      final priority = data.remove('.priority');
+      return FakeDataSnapshot(ref, data, priority);
+    }
+
     return FakeDataSnapshot(ref, data);
   }
 

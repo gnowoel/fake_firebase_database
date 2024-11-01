@@ -79,8 +79,15 @@ class FakeDatabaseReference extends FakeQuery implements DatabaseReference {
 
   @override
   Future<void> setPriority(Object? priority) {
-    // TODO: implement setPriority
-    throw UnimplementedError();
+    return _guardedOperation(() async {
+      final parts = _pathParts;
+      Map<String, dynamic> data = _database._store;
+
+      _createPriority(data, priority, parts);
+
+      _cleanUp();
+      _database._notifyListeners(this);
+    });
   }
 
   @override
@@ -115,6 +122,14 @@ class FakeDatabaseReference extends FakeQuery implements DatabaseReference {
     value = _handleServerValue(data[lastPart], value);
     _cleanDown(value);
     data[lastPart] = value;
+  }
+
+  void _createPriority(
+      Map<String, dynamic> data, Object? priority, List<String> parts) {
+    data = _walkThrough(data, parts);
+    if (data.isNotEmpty) {
+      data['.priority'] = priority;
+    }
   }
 
   Map<String, dynamic> _walkThrough(

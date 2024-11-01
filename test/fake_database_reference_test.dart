@@ -472,5 +472,16 @@ void main() {
         expect(snapshot.value, {'count': 2});
       });
     });
+
+    group('priority-related', () {
+      test('can set priority', () async {
+        final ref = database.ref('users/user1');
+        await ref.set(<String, dynamic>{'name': 'Alice'});
+        await ref.setPriority(100);
+
+        final snapshot = await ref.get();
+        expect(snapshot.priority, 100);
+      });
+    });
   });
 }
