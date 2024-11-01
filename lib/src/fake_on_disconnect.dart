@@ -28,9 +28,11 @@ class FakeOnDisconnect implements OnDisconnect {
   }
 
   @override
-  Future<void> setWithPriority(Object? value, Object? priority) {
-    // TODO: implement setWithPriority
-    throw UnimplementedError();
+  Future<void> setWithPriority(Object? value, Object? priority) async {
+    _actions.add(() async {
+      await _ref.setWithPriority(value, priority);
+    });
+    _registerRef();
   }
 
   @override

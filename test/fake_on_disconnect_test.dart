@@ -36,6 +36,21 @@ void main() {
       expect(snapshot.value, {'key': 'value'});
     });
 
+    test('setWithPriority() sets value with priority', () async {
+      final ref = database.ref('test');
+      final onDisconnect = ref.onDisconnect() as FakeOnDisconnect;
+
+      await onDisconnect
+          .setWithPriority(<String, dynamic>{'key': 'value'}, 100);
+
+      await database.goOffline();
+      await database.goOnline();
+
+      final snapshot = await ref.get();
+      expect(snapshot.value, {'key': 'value'});
+      expect(snapshot.priority, 100);
+    });
+
     test('update() updates value', () async {
       final ref = database.ref('test');
       await ref.set({'key1': 'value1'});
