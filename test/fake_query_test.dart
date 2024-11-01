@@ -25,6 +25,36 @@ void main() {
         expect(ref4.path, '/users');
         expect(ref5.path, '/users/123');
       });
+
+      test('sort by priority as default', () async {
+        final ref = database.ref('users');
+        ref.child('2').setWithPriority(<String, dynamic>{'name': 'Bob'}, 3);
+        ref.child('1').setWithPriority(<String, dynamic>{'name': 'Alice'}, 2);
+        ref.child('3').setWithPriority(<String, dynamic>{'name': 'Charlie'}, 1);
+
+        final snapshot = await ref.get();
+        final children = snapshot.children.toList();
+
+        expect(children.length, 3);
+        expect(children[0].child('name').value, 'Charlie');
+        expect(children[1].child('name').value, 'Alice');
+        expect(children[2].child('name').value, 'Bob');
+      });
+
+      test('sort by key as fallback', () async {
+        final ref = database.ref('users');
+        ref.child('2').set(<String, dynamic>{'name': 'Bob'});
+        ref.child('1').set(<String, dynamic>{'name': 'Alice'});
+        ref.child('3').set(<String, dynamic>{'name': 'Charlie'});
+
+        final snapshot = await ref.get();
+        final children = snapshot.children.toList();
+
+        expect(children.length, 3);
+        expect(children[0].child('name').value, 'Alice');
+        expect(children[1].child('name').value, 'Bob');
+        expect(children[2].child('name').value, 'Charlie');
+      });
     });
 
     group('orderByChild()', () {

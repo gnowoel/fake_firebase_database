@@ -270,7 +270,7 @@ class FakeQuery implements Query {
     }).toList();
 
     if (_order == null) {
-      orderByKey();
+      orderByPriority();
     }
 
     if (_order != null) {
