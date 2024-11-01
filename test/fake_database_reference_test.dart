@@ -508,6 +508,31 @@ void main() {
         expect(children[1].child('name').value, 'Alice');
         expect(children[2].child('name').value, 'Charlie');
       });
+
+      test('can set priority in different ways', () async {
+        final ref1 = database.ref('users');
+        await ref1.set({
+          'user1': <String, dynamic>{'name': 'Alice', '.priority': 100},
+        });
+
+        final ref2 = ref1.child('user2');
+        ref2.set(
+          <String, dynamic>{'name': 'Bob'},
+        );
+        ref2.setPriority(50);
+
+        final ref3 = ref1.child('user3');
+        ref3.setWithPriority(<String, dynamic>{'name': 'Charlie'}, 150);
+
+        final query = ref1.orderByPriority();
+        final snapshot = await query.get();
+        final children = snapshot.children.toList();
+
+        expect(children.length, 3);
+        expect(children[0].child('name').value, 'Bob');
+        expect(children[1].child('name').value, 'Alice');
+        expect(children[2].child('name').value, 'Charlie');
+      });
     });
   });
 }
