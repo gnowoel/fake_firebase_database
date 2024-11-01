@@ -320,7 +320,7 @@ class FakeQuery implements Query {
       return pair.copyWith(filter: pair.entry.key);
     }).toList();
 
-    pairs.sort((a, b) => _compareKeys(a.entry.key, b.entry.key));
+    pairs.sort((a, b) => _compareKeys(a, b));
 
     return pairs;
   }
@@ -464,7 +464,10 @@ class FakeQuery implements Query {
     return d == 'start' ? (i ? c >= 0 : c > 0) : (i ? c <= 0 : c < 0);
   }
 
-  int _compareKeys(String k1, String k2) {
+  int _compareKeys(Pair p1, Pair p2) {
+    final k1 = p1.filter as String;
+    final k2 = p2.filter as String;
+
     int? i1 = int.tryParse(k1);
     int? i2 = int.tryParse(k2);
 
