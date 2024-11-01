@@ -476,8 +476,20 @@ void main() {
     group('priority-related', () {
       test('can set priority', () async {
         final ref = database.ref('users/user1');
-        await ref.set(<String, dynamic>{'name': 'Alice'});
+        await ref.set(<String, dynamic>{
+          'name': 'Alice',
+        });
         await ref.setPriority(100);
+
+        final snapshot = await ref.get();
+        expect(snapshot.priority, 100);
+      });
+
+      test('can set with priority', () async {
+        final ref = database.ref('users/user1');
+        await ref.setWithPriority(<String, dynamic>{
+          'name': 'Alice',
+        }, 100);
 
         final snapshot = await ref.get();
         expect(snapshot.priority, 100);
