@@ -48,6 +48,26 @@ void main() {
         expect(ref, isA<DatabaseReference>());
         expect(ref.path, '/users/123');
       });
+
+      test('throws on invalid URL format', () {
+        expect(
+          () => database.refFromURL('invalid-url'),
+          throwsArgumentError,
+        );
+      });
+
+      test('throws on non-HTTPS URL', () {
+        expect(
+          () => database.refFromURL('http://example.firebaseio.com/path'),
+          throwsArgumentError,
+        );
+      });
+
+      test('handles empty path correctly', () {
+        const url = 'https://example.firebaseio.com';
+        final ref = database.refFromURL(url);
+        expect(ref.path, '/');
+      });
     });
 
     group('goOnline() / goOffline()', () {
