@@ -131,6 +131,7 @@ class FakeDatabaseReference extends FakeQuery implements DatabaseReference {
 
     data = _walkThrough(data, parts);
     value = _handleServerValue(data[lastPart], value);
+    value = _convertListToMap(value);
     _cleanDown(value);
     data[lastPart] = value;
   }
@@ -200,6 +201,22 @@ class FakeDatabaseReference extends FakeQuery implements DatabaseReference {
     if (value is! Map) return false;
     return value['.sv'] is Map &&
         (value['.sv'] as Map).containsKey('increment');
+  }
+
+  Object? _convertListToMap(Object? value) {
+    if (value is List) {
+      return value.asMap().map((k, v) {
+        return MapEntry(k.toString(), _convertListToMap(v));
+      });
+    }
+
+    if (value is Map) {
+      return value.map((k, v) {
+        return MapEntry<String, dynamic>(k, _convertListToMap(v));
+      });
+    }
+
+    return value;
   }
 
   void _cleanDown(Object? value) {

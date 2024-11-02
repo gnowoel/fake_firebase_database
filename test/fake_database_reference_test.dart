@@ -549,5 +549,94 @@ void main() {
         expect(() => ref.setWithPriority(value, {}), throwsAssertionError);
       });
     });
+
+    group('list handling', () {
+      test('converts List to Map when setting', () async {
+        final ref = database.ref('items');
+        await ref.set(['a', 'b', 'c']);
+
+        final snapshot = await ref.get();
+        expect(snapshot.value, {'0': 'a', '1': 'b', '2': 'c'});
+      });
+
+      test('handles nested Lists', () async {
+        final ref = database.ref('items');
+        await ref.set({
+          'nested': [
+            'a',
+            'b',
+            ['c', 'd']
+          ]
+        });
+
+        final snapshot = await ref.get();
+        expect(snapshot.value, {
+          'nested': {
+            '0': 'a',
+            '1': 'b',
+            '2': {'0': 'c', '1': 'd'}
+          }
+        });
+      });
+
+      test('handles Lists in updates', () async {
+        final ref = database.ref('items');
+        await ref.update({
+          'list1': ['a', 'b'],
+          'list2': ['c', 'd'],
+        });
+
+        final snapshot = await ref.get();
+        expect(snapshot.value, {
+          'list1': {'0': 'a', '1': 'b'},
+          'list2': {'0': 'c', '1': 'd'},
+        });
+      });
+
+      test('handles null values in Lists', () async {
+        final ref = database.ref('items');
+        await ref.set(['a', null, 'c']);
+
+        final snapshot = await ref.get();
+        expect(snapshot.value, {'0': 'a', '2': 'c'});
+      });
+
+      test('handles empty Lists', () async {
+        final ref = database.ref('items');
+        await ref.set(['a', [], 'c']);
+
+        final snapshot = await ref.get();
+        expect(snapshot.value, {'0': 'a', '2': 'c'});
+      });
+
+      test('preserves numeric string keys', () async {
+        final ref = database.ref('items');
+        await ref.set({
+          '0': 'a',
+          '1': 'b',
+          '2': 'c',
+        });
+
+        final snapshot = await ref.get();
+        expect(snapshot.value, {'0': 'a', '1': 'b', '2': 'c'});
+      });
+
+      test('handles List with non-sequential indices', () async {
+        final ref = database.ref('items');
+        final list = List<String?>.filled(5, null);
+        list[0] = 'a';
+        list[2] = 'c';
+        list[4] = 'e';
+
+        await ref.set(list);
+
+        final snapshot = await ref.get();
+        expect(snapshot.value, {
+          '0': 'a',
+          '2': 'c',
+          '4': 'e',
+        });
+      });
+    });
   });
 }

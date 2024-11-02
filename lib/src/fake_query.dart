@@ -73,6 +73,7 @@ class FakeQuery implements Query {
     });
   }
 
+  // TODO: Should we convert `Map`s back to `List`s?
   DataSnapshot _getSnapshot() {
     final parts = _pathParts;
     Object? data = _database._store;
