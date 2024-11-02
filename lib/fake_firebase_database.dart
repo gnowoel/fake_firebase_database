@@ -16,3 +16,15 @@ part 'src/fake_firebase_database.dart';
 part 'src/fake_on_disconnect.dart';
 part 'src/fake_query.dart';
 part 'src/fake_transaction_result.dart';
+
+class MockFirebaseApp implements FirebaseApp {
+  final String _name;
+
+  MockFirebaseApp([this._name = defaultFirebaseAppName]);
+
+  @override
+  String get name => _name;
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
