@@ -58,7 +58,7 @@ class FakeFirebaseDatabase implements FirebaseDatabase {
 
   @override
   void setLoggingEnabled(bool enabled) {
-    // TODO: implement setLoggingEnabled
+    // No-op for fake implementation
   }
 
   @override
