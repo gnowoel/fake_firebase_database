@@ -116,8 +116,10 @@ void main() {
     });
 
     group('refFromURL()', () {
+      const host = 'fake-database-default-rtdb.firebaseio.com';
+
       test('returns a DatabaseReference from specified URL', () {
-        const url = 'https://example.firebaseio.com/users/123';
+        const url = 'https://$host/users/123';
         final ref = database.refFromURL(url);
 
         expect(ref, isA<DatabaseReference>());
@@ -125,21 +127,22 @@ void main() {
       });
 
       test('throws on invalid URL format', () {
-        expect(
-          () => database.refFromURL('invalid-url'),
-          throwsArgumentError,
-        );
+        const url = 'invalid-url';
+        expect(() => database.refFromURL(url), throwsArgumentError);
       });
 
       test('throws on non-HTTPS URL', () {
-        expect(
-          () => database.refFromURL('http://example.firebaseio.com/path'),
-          throwsArgumentError,
-        );
+        const url = 'http://$host/users/123';
+        expect(() => database.refFromURL(url), throwsArgumentError);
+      });
+
+      test('throws on mismatched databaseURL', () {
+        const url = 'https://mismatched-$host/users/123';
+        expect(() => database.refFromURL(url), throwsArgumentError);
       });
 
       test('handles empty path correctly', () {
-        const url = 'https://example.firebaseio.com';
+        const url = 'https://$host';
         final ref = database.refFromURL(url);
         expect(ref.path, '/');
       });
@@ -150,7 +153,7 @@ void main() {
         final ref = database.ref('test');
         await database.goOffline();
 
-        expect(ref.set({'key': 'value'}), throwsA(isA<Exception>()));
+        expect(() => ref.set({'key': 'value'}), throwsA(isA<Exception>()));
         expect(database.isOnline, false);
       });
 
