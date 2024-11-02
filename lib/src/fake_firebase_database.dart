@@ -49,8 +49,12 @@ class FakeFirebaseDatabase implements FirebaseDatabase {
 
   @override
   DatabaseReference refFromURL(String url) {
-    // TODO: implement refFromURL
-    throw UnimplementedError();
+    final uri = Uri.parse(url);
+    if (!url.startsWith('https://') || uri.host.isEmpty) {
+      throw ArgumentError('Invalid Firebase Database URL');
+    }
+    final path = uri.path;
+    return ref(path);
   }
 
   @override

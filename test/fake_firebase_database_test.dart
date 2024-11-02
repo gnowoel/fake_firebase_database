@@ -24,18 +24,30 @@ void main() {
       expect(instance1, same(instance2));
     });
 
-    test('ref() returns a DatabaseReference with root path', () {
-      final ref = database.ref();
+    group('ref()', () {
+      test('returns a DatabaseReference with root path', () {
+        final ref = database.ref();
 
-      expect(ref, isA<DatabaseReference>());
-      expect(ref.path, '/');
+        expect(ref, isA<DatabaseReference>());
+        expect(ref.path, '/');
+      });
+
+      test('returns a DatabaseReference with specified path', () {
+        final ref = database.ref('users/123');
+
+        expect(ref, isA<DatabaseReference>());
+        expect(ref.path, '/users/123');
+      });
     });
 
-    test('ref(path) returns a DatabaseReference with specified path', () {
-      final ref = database.ref('users/123');
+    group('refFromURL()', () {
+      test('returns a DatabaseReference from specified URL', () {
+        const url = 'https://example.firebaseio.com/users/123';
+        final ref = database.refFromURL(url);
 
-      expect(ref, isA<DatabaseReference>());
-      expect(ref.path, '/users/123');
+        expect(ref, isA<DatabaseReference>());
+        expect(ref.path, '/users/123');
+      });
     });
 
     group('goOnline() / goOffline()', () {
