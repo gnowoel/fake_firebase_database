@@ -7,22 +7,95 @@ void main() {
   final database = FakeFirebaseDatabase.instance;
 
   tearDown(() {
-    database.clear();
+    FakeFirebaseDatabase.clearInstances();
   });
 
   group('FakeFirebaseDatabase', () {
     group('instance', () {
       test('can create a FirebaseDatabase instance', () {
-        final instance = FakeFirebaseDatabase.instance;
+        final db = FakeFirebaseDatabase.instance;
 
-        expect(instance, isA<FirebaseDatabase>());
+        expect(db, isA<FirebaseDatabase>());
       });
 
       test('should return a singleton instance', () {
-        final instance1 = FakeFirebaseDatabase.instance;
-        final instance2 = FakeFirebaseDatabase.instance;
+        final db1 = FakeFirebaseDatabase.instance;
+        final db2 = FakeFirebaseDatabase.instance;
 
-        expect(instance1, same(instance2));
+        expect(db1, same(db2));
+      });
+    });
+
+    group('instanceFor()', () {
+      test('returns different instances for different apps', () {
+        final app1 = MockFirebaseApp('app1');
+        final app2 = MockFirebaseApp('app2');
+
+        final db1 = FakeFirebaseDatabase.instanceFor(app: app1);
+        final db2 = FakeFirebaseDatabase.instanceFor(app: app2);
+
+        expect(db1, isNot(same(db2)));
+        expect(db1.app, same(app1));
+        expect(db2.app, same(app2));
+      });
+
+      test('returns same instance for same app', () {
+        final app = MockFirebaseApp('app');
+
+        final db1 = FakeFirebaseDatabase.instanceFor(app: app);
+        final db2 = FakeFirebaseDatabase.instanceFor(app: app);
+
+        expect(db1, same(db2));
+      });
+
+      test('returns different instances for same app with different URLs', () {
+        final app = MockFirebaseApp('app');
+
+        final db1 = FakeFirebaseDatabase.instanceFor(
+          app: app,
+          databaseURL: 'https://db1.firebaseio.com',
+        );
+        final db2 = FakeFirebaseDatabase.instanceFor(
+          app: app,
+          databaseURL: 'https://db2.firebaseio.com',
+        );
+
+        expect(db1, isNot(same(db2)));
+        expect(db1.databaseURL, 'https://db1.firebaseio.com');
+        expect(db2.databaseURL, 'https://db2.firebaseio.com');
+      });
+
+      test('instances maintain separate data stores', () async {
+        final app1 = MockFirebaseApp('app1');
+        final app2 = MockFirebaseApp('app2');
+
+        final db1 = FakeFirebaseDatabase.instanceFor(app: app1);
+        final db2 = FakeFirebaseDatabase.instanceFor(app: app2);
+
+        await db1.ref('test').set('value1');
+        await db2.ref('test').set('value2');
+
+        final snapshot1 = await db1.ref('test').get();
+        final snapshot2 = await db2.ref('test').get();
+
+        expect(snapshot1.value, 'value1');
+        expect(snapshot2.value, 'value2');
+      });
+
+      test('clearInstances() removes all instances', () {
+        final app1 = MockFirebaseApp('app1');
+        final app2 = MockFirebaseApp('app2');
+
+        final db1 = FakeFirebaseDatabase.instanceFor(app: app1);
+        final db2 = FakeFirebaseDatabase.instanceFor(app: app2);
+
+        FakeFirebaseDatabase.clearInstances();
+
+        final db1New = FakeFirebaseDatabase.instanceFor(app: app1);
+        final db2New = FakeFirebaseDatabase.instanceFor(app: app2);
+
+        expect(db1New, isNot(same(db1)));
+        expect(db2New, isNot(same(db2)));
       });
     });
 

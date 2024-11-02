@@ -1,24 +1,38 @@
 part of '../fake_firebase_database.dart';
 
 class FakeFirebaseDatabase implements FirebaseDatabase {
+  static final Map<String, FakeFirebaseDatabase> _instances = {};
+
   final Map<String, dynamic> _store = {};
   final Set<FakeQuery> _activeQueries = {};
   final Set<FakeDatabaseReference> _onDisconnectReferences = {};
   bool _isOnline = true;
 
   @override
+  FirebaseApp app;
+
+  @override
   String? databaseURL;
 
-  FakeFirebaseDatabase._();
+  FakeFirebaseDatabase._({
+    required this.app,
+    this.databaseURL,
+  });
 
-  static final FakeFirebaseDatabase instance = FakeFirebaseDatabase._();
+  static final FakeFirebaseDatabase instance = instanceFor(
+    app: MockFirebaseApp(),
+    databaseURL: 'https://fake-database-default-rtdb.firebaseio.com',
+  );
 
-  @override
-  FirebaseApp get app => throw UnimplementedError();
-
-  @override
-  set app(FirebaseApp value) {
-    // No-op for fake implementation
+  static FakeFirebaseDatabase instanceFor({
+    required FirebaseApp app,
+    String? databaseURL,
+  }) {
+    final key = '${app.name}|$databaseURL';
+    return _instances.putIfAbsent(
+      key,
+      () => FakeFirebaseDatabase._(app: app, databaseURL: databaseURL),
+    );
   }
 
   @override
@@ -91,6 +105,14 @@ class FakeFirebaseDatabase implements FirebaseDatabase {
 
     _activeQueries.clear();
     _store.clear();
+  }
+
+  @visibleForTesting
+  static void clearInstances() {
+    for (final instance in _instances.values) {
+      instance.clear();
+    }
+    _instances.clear();
   }
 
   void _addActiveQuery(FakeQuery query) {
