@@ -38,8 +38,8 @@ class FakeFirebaseDatabase implements FirebaseDatabase {
 
   @override
   Future<void> purgeOutstandingWrites() {
-    // TODO: implement purgeOutstandingWrites
-    throw UnimplementedError();
+    // No-op for fake implementation
+    return Future.value();
   }
 
   @override
