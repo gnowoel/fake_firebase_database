@@ -168,5 +168,17 @@ void main() {
         expect(database.isOnline, true);
       });
     });
+
+    group('dump()', () {
+      test('gets data store', () async {
+        final ref = database.ref();
+        final value = {'name': 'John', 'age': 18};
+
+        await ref.set(value);
+
+        final store = database.dump();
+        expect(store, value);
+      });
+    });
   });
 }

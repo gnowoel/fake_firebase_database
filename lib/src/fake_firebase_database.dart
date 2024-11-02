@@ -119,6 +119,11 @@ class FakeFirebaseDatabase implements FirebaseDatabase {
   }
 
   @visibleForTesting
+  Map<String, dynamic> dump() {
+    return _store['/'];
+  }
+
+  @visibleForTesting
   static void clearInstances() {
     for (final instance in _instances.values) {
       instance.clear();
