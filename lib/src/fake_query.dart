@@ -96,9 +96,9 @@ class FakeQuery implements Query {
   }
 
   @override
-  Future<void> keepSynced(bool value) {
-    // TODO: implement keepSynced
-    throw UnimplementedError();
+  Future<void> keepSynced(bool value) async {
+    // No-op for fake implementation
+    return Future.value();
   }
 
   @override
