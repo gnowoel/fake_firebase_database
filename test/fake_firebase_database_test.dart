@@ -11,17 +11,19 @@ void main() {
   });
 
   group('FakeFirebaseDatabase', () {
-    test('can create a FirebaseDatabase instance', () {
-      final instance = FakeFirebaseDatabase.instance;
+    group('instance', () {
+      test('can create a FirebaseDatabase instance', () {
+        final instance = FakeFirebaseDatabase.instance;
 
-      expect(instance, isA<FirebaseDatabase>());
-    });
+        expect(instance, isA<FirebaseDatabase>());
+      });
 
-    test('should return a singleton instance', () {
-      final instance1 = FakeFirebaseDatabase.instance;
-      final instance2 = FakeFirebaseDatabase.instance;
+      test('should return a singleton instance', () {
+        final instance1 = FakeFirebaseDatabase.instance;
+        final instance2 = FakeFirebaseDatabase.instance;
 
-      expect(instance1, same(instance2));
+        expect(instance1, same(instance2));
+      });
     });
 
     group('ref()', () {

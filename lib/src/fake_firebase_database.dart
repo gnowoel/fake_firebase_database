@@ -33,7 +33,10 @@ class FakeFirebaseDatabase implements FirebaseDatabase {
   }
 
   @override
-  Map get pluginConstants => {};
+  Map get pluginConstants {
+    // No-op for fake implementation
+    return {};
+  }
 
   @override
   Future<void> purgeOutstandingWrites() {
