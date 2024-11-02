@@ -63,7 +63,7 @@ class FakeFirebaseDatabase implements FirebaseDatabase {
 
   @override
   void setPersistenceCacheSizeBytes(int cacheSize) {
-    // TODO: implement setPersistenceCacheSizeBytes
+    // No-op for fake implementation
   }
 
   @override
