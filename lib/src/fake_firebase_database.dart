@@ -74,7 +74,7 @@ class FakeFirebaseDatabase implements FirebaseDatabase {
   @override
   void useDatabaseEmulator(String host, int port,
       {bool automaticHostMapping = true}) {
-    // TODO: implement useDatabaseEmulator
+    // No-op for fake implementation
   }
 
   @visibleForTesting
